@@ -1,0 +1,124 @@
+.analytics-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  color: #fff;
+}
+
+.analytics-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.analytics-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.metric-card h3 {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  color: #a0aec0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.metric-value {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.text-orange {
+  color: #f6ad55;
+}
+
+.text-green {
+  color: #68d391;
+}
+
+.chart-section, .recommendations-section {
+  margin-bottom: 3rem;
+}
+
+.chart-section h2, .recommendations-section h2 {
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 0.5rem;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+.recommendations-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.recommendations-table th, .recommendations-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.recommendations-table th {
+  color: #a0aec0;
+  font-weight: 600;
+}
+
+.ratio-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.ratio-badge.high {
+  background-color: rgba(245, 101, 101, 0.2);
+  color: #fc8181;
+}
+
+.ratio-badge.low {
+  background-color: rgba(236, 201, 75, 0.2);
+  color: #f6e05e;
+}
+
+.ratio-badge.balanced {
+  background-color: rgba(104, 211, 145, 0.2);
+  color: #68d391;
+}
+
+.analytics-loading, .analytics-error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+  font-size: 1.5rem;
+  color: #a0aec0;
+}
+
+.analytics-error {
+  color: #fc8181;
+}

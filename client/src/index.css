@@ -1,0 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+:root {
+  --color-dark-brown: #332015;
+  --color-light-tan: #f5eedc;
+  --color-white: #ffffff;
+  --color-border: #dcd4c3;
+  --color-text-dark: #22150e;
+  --color-text-light: #f5eedc;
+  --color-accent: #c4a47c;
+  
+  --font-serif: 'Playfair Display', serif;
+  --font-sans: 'Inter', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-white);
+  color: var(--color-text-dark);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+}
+
+/* Base styles to mimic the screenshot's premium aesthetic */
+.btn-primary {
+  background: transparent;
+  border: 1px solid var(--color-text-light);
+  color: var(--color-text-light);
+  padding: 12px 24px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 4px;
+}
+
+.btn-primary:hover {
+  background: var(--color-text-light);
+  color: var(--color-dark-brown);
+}
+
+.btn-dark {
+  background: transparent;
+  border: 1px solid var(--color-dark-brown);
+  color: var(--color-dark-brown);
+  padding: 12px 24px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 4px;
+  width: 100%;
+}
+
+.btn-dark:hover {
+  background: var(--color-dark-brown);
+  color: var(--color-white);
+}
+
+.input-field {
+  width: 100%;
+  padding: 10px 0;
+  border: none;
+  border-bottom: 1px solid var(--color-dark-brown);
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  margin-bottom: 24px;
+  outline: none;
+  color: var(--color-text-dark);
+}
+
+.input-field::placeholder {
+  color: #666;
+}
