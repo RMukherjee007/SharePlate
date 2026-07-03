@@ -30,11 +30,12 @@ Millions of tons of edible food are wasted every year while many communities str
 
 ### User Features
 
+✅ Secure Registration & JWT Authentication
 ✅ Browse available food donations  
 ✅ View food listings in real time  
 ✅ Claim available food  
 ✅ Location-based discovery  
-✅ Responsive mobile-friendly UI  
+✅ Responsive mobile-friendly UI with premium unified styling
 
 ### Provider Features
 
@@ -42,12 +43,15 @@ Millions of tons of edible food are wasted every year while many communities str
 ✅ Manage availability  
 ✅ Update quantity/status  
 ✅ Track donation requests  
+✅ Secure Role-Based Dashboards
 
 ### System Features
 
-✅ JWT Authentication  
+✅ JWT Authentication (bcrypt hashed passwords)
+✅ AI-based demand prediction & Analytics dashboard
+✅ Food expiry detection background service
+✅ Real-time data sync using Server-Sent Events (SSE) & Redis
 ✅ API Rate Limiting  
-✅ Redis Caching  
 ✅ Compression Middleware  
 ✅ Cloud Deployment  
 ✅ Dockerized Infrastructure  
@@ -61,9 +65,9 @@ Frontend (React + Vite)
         ↓
 Backend API (Node.js + Express)
         ↓
- ┌───────────────┬──────────────┐
- ↓               ↓              ↓
-MySQL          Redis        JWT Auth
+  ┌─────────────┬─────────────┐
+  ↓             ↓             ↓
+MySQL         Redis        JWT Auth
         ↓
 Docker + Google Cloud Run
 ```
@@ -77,23 +81,24 @@ Docker + Google Cloud Run
 - React 19
 - React Router
 - Vite
-- CSS
+- Recharts (Data Visualization)
+- Modern CSS (Glassmorphism & Unified Themes)
 
 ### Backend
 
 - Node.js
 - Express.js
-- JWT Authentication
+- JWT Authentication & bcryptjs
 - Express Rate Limiter
-- Compression
+- node-cron (Expiry Service)
 
 ### Database
 
 - MySQL
 
-### Caching
+### Caching & Messaging
 
-- Redis
+- Redis (Caching and Pub/Sub for SSE)
 
 ### DevOps
 
@@ -105,15 +110,14 @@ Docker + Google Cloud Run
 ## 📂 Project Structure
 
 ```bash
-Food_Waste_Reduction/
+SharePlate/
 │
-├── client/                # React frontend
+├── client/                # React frontend (Vite)
 │
-├── src/                   # Backend source
+├── src/                   # Backend source (Express)
 │
 ├── schema.sql             # Database schema
 ├── Dockerfile             # Container config
-├── start.sh               # Startup script
 ├── package.json           # Backend dependencies
 └── README.md
 ```
@@ -125,8 +129,8 @@ Food_Waste_Reduction/
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/RMukherjee007/Food_Waste_Reduction.git
-cd Food_Waste_Reduction
+git clone https://github.com/RMukherjee007/SharePlate.git
+cd SharePlate
 ```
 
 ### 2. Install Backend Dependencies
@@ -150,37 +154,42 @@ cd ..
 Create MySQL database:
 
 ```sql
-CREATE DATABASE shareplate;
+CREATE DATABASE food_waste_redistribution_platform;
 ```
 
 Import schema:
 
 ```bash
-mysql -u root -p shareplate < schema.sql
+mysql -u root -p food_waste_redistribution_platform < schema.sql
 ```
 
 ---
 
 ## 🔐 Environment Variables
 
-Create a `.env` file:
+Create a `.env` file in the root directory:
 
 ```env
-PORT=5000
+PORT=5001
 
-MYSQL_HOST=localhost
-MYSQL_USER=root
-MYSQL_PASSWORD=yourpassword
-MYSQL_DATABASE=shareplate
+DB_HOST=127.0.0.1
+DB_USER=root
+DB_PASS=
+DB_NAME=food_waste_redistribution_platform
 
 REDIS_URL=redis://localhost:6379
 
-JWT_SECRET=your_secret
+JWT_SECRET=your_secret_key
 ```
 
 ---
 
 ## ▶️ Running Locally
+
+### Start Redis (Required for real-time events)
+```bash
+redis-server
+```
 
 ### Backend
 
@@ -188,7 +197,7 @@ JWT_SECRET=your_secret
 npm run dev
 ```
 
-### Frontend
+### Frontend (in a new terminal)
 
 ```bash
 cd client
@@ -208,18 +217,16 @@ docker build -t shareplate .
 Run container:
 
 ```bash
-docker run -p 5000:5000 shareplate
+docker run -p 5001:5001 shareplate
 ```
 
 ---
 
 ## ☁️ Cloud Deployment
 
-This project is deployed using:
+This project is designed to be deployed using Google Cloud Run.
 
-- Google Cloud Run
-
-Live deployment:
+Live deployment (Example):
 
 https://shareplate-app-883918498227.us-central1.run.app
 
@@ -227,12 +234,9 @@ https://shareplate-app-883918498227.us-central1.run.app
 
 ## 🚀 Future Improvements
 
-- AI-based demand prediction
-- Food expiry detection
 - Real-time map integration
-- NGO verification system
-- Push notifications
-- Analytics dashboard
+- Advanced NGO verification workflows
+- Push notifications for new listings
 
 ---
 
