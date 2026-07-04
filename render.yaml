@@ -11,12 +11,10 @@ services:
     env: node
     plan: free
     buildCommand: npm install && npm run build
-    startCommand: npm start
+    startCommand: NODE_ENV=production npm start
     envVars:
       - key: NODE_VERSION
         value: 20
-      - key: NODE_ENV
-        value: production
       # Automatically pass the Redis connection string to the backend
       - key: REDIS_URL
         fromService:
