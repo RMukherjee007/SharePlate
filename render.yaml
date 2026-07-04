@@ -1,0 +1,34 @@
+services:
+  # 1. Free Redis Instance for caching and Pub/Sub
+  - type: redis
+    name: shareplate-redis
+    plan: free
+    ipAllowList: []
+
+  # 2. Node.js Backend & React Frontend (Served together)
+  - type: web
+    name: shareplate-app
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Automatically pass the Redis connection string to the backend
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: shareplate-redis
+          property: connectionString
+      # You will need to manually add your MySQL credentials in the Render Dashboard
+      - key: DB_HOST
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASS
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: JWT_SECRET
+        sync: false
