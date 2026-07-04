@@ -39,13 +39,13 @@ const requestBatch = async (req, res) => {
 
       // 2. Set batch status to 'locked'
       await connection.execute(
-        'UPDATE Food_Batches SET status = "locked" WHERE batch_id = ?',
+        'UPDATE Food_Batches SET status = \'locked\' WHERE batch_id = ?',
         [batch_id]
       );
 
       // 3. Create a pending claim
       const [insertResult] = await connection.execute(
-        'INSERT INTO Claims (batch_id, charity_id, pickup_status, charity_name, charity_address) VALUES (?, ?, "pending", ?, ?)',
+        'INSERT INTO Claims (batch_id, charity_id, pickup_status, charity_name, charity_address) VALUES (?, ?, \'pending\', ?, ?)',
         [batch_id, charity_id, charity_name.trim(), charity_address.trim()]
       );
 
@@ -132,13 +132,13 @@ const acceptClaim = async (req, res) => {
 
       // Update Claim to completed
       await connection.execute(
-        'UPDATE Claims SET pickup_status = "completed" WHERE claim_id = ?',
+        'UPDATE Claims SET pickup_status = \'completed\' WHERE claim_id = ?',
         [claim_id]
       );
 
       // Update Food_Batch to claimed
       await connection.execute(
-        'UPDATE Food_Batches SET status = "claimed" WHERE batch_id = ?',
+        'UPDATE Food_Batches SET status = \'claimed\' WHERE batch_id = ?',
         [batch_id]
       );
 

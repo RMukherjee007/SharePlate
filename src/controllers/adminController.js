@@ -27,7 +27,7 @@ const verifyNGO = async (req, res) => {
   const { id } = req.params;
   try {
     const [result] = await pool.execute(
-      'UPDATE Users SET is_verified = TRUE WHERE user_id = ? AND role = "NGO"',
+      'UPDATE Users SET is_verified = TRUE WHERE user_id = ? AND role = \'NGO\'',
       [id]
     );
 

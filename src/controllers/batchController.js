@@ -118,7 +118,7 @@ const createBatch = async (req, res) => {
 
     try {
       const [result] = await connection.execute(
-        'INSERT INTO Food_Batches (donor_id, description, batch_type, weight_kg, expiry_timestamp, status, delivery_city, donor_name, pickup_address) VALUES (?, ?, ?, ?, ?, "available", ?, ?, ?)',
+        'INSERT INTO Food_Batches (donor_id, description, batch_type, weight_kg, expiry_timestamp, status, delivery_city, donor_name, pickup_address) VALUES (?, ?, ?, ?, ?, \'available\', ?, ?, ?)',
         [donor_id, description, batch_type, weight_kg, expiryStr, delivery_city.trim(), donor_name.trim(), pickup_address.trim()]
       );
 
