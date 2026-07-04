@@ -52,17 +52,21 @@ const requestBatch = async (req, res) => {
       await connection.commit();
 
       // Invalidate Cache so it disappears from 'available' immediately
-      const delivery_city = batches[0].delivery_city;
-      const cacheKey = `batches:${delivery_city.trim().toLowerCase()}`;
-      await redisClient.del(cacheKey);
-      await redisClient.del('batches:all');
+      try {
+        const delivery_city = batches[0].delivery_city;
+        const cacheKey = `batches:${delivery_city.trim().toLowerCase()}`;
+        await redisClient.del(cacheKey);
+        await redisClient.del('batches:all');
 
-      // Publish event to Redis Pub/Sub
-      await redisClient.publish('inventory_updates', JSON.stringify({
-        type: 'BATCH_REQUESTED',
-        city: delivery_city.trim(),
-        batch_id
-      }));
+        // Publish event to Redis Pub/Sub
+        await redisClient.publish('inventory_updates', JSON.stringify({
+          type: 'BATCH_REQUESTED',
+          city: delivery_city.trim(),
+          batch_id
+        }));
+      } catch (redisErr) {
+        console.warn('Redis DEL/PUBLISH error after claim:', redisErr.message);
+      }
 
       res.status(201).json({
         message: 'Request sent successfully. Pending restaurant approval.',
@@ -145,18 +149,22 @@ const acceptClaim = async (req, res) => {
       await connection.commit();
 
       // Invalidate the cache for this city and all batches
-      const delivery_city = claims[0].delivery_city;
-      const cacheKey = `batches:${delivery_city.trim().toLowerCase()}`;
-      await redisClient.del(cacheKey);
-      await redisClient.del('batches:all');
+      try {
+        const delivery_city = claims[0].delivery_city;
+        const cacheKey = `batches:${delivery_city.trim().toLowerCase()}`;
+        await redisClient.del(cacheKey);
+        await redisClient.del('batches:all');
 
-      // Publish event to Redis Pub/Sub
-      await redisClient.publish('inventory_updates', JSON.stringify({
-        type: 'CLAIM_ACCEPTED',
-        city: delivery_city.trim(),
-        batch_id,
-        claim_id
-      }));
+        // Publish event to Redis Pub/Sub
+        await redisClient.publish('inventory_updates', JSON.stringify({
+          type: 'CLAIM_ACCEPTED',
+          city: delivery_city.trim(),
+          batch_id,
+          claim_id
+        }));
+      } catch (redisErr) {
+        console.warn('Redis DEL/PUBLISH error after claim accept:', redisErr.message);
+      }
 
       res.status(200).json({ message: 'Request accepted successfully.' });
     } catch (err) {

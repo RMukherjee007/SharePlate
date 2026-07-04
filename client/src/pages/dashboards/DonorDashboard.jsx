@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 
 export default function DonorDashboard() {
-  const { user, token } = useAuth();
+  const { user, token, logout } = useAuth();
   const [batches, setBatches] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
   const [form, setForm] = useState({ description: '', batch_type: 'Dry_Goods', weight_kg: '', expiry_hours: '24', delivery_city: '', donor_name: user?.name || '', pickup_address: user?.address || '' });
@@ -12,18 +12,20 @@ export default function DonorDashboard() {
     const res = await fetch('/api/batches/me', {
       headers: { 'Authorization': `Bearer ${token}` }
     });
+    if (res.status === 401 || res.status === 403) return logout();
     if (res.ok) {
       const data = await res.json();
       setBatches(data.batches || []);
     }
-  }, [token]);
+  }, [token, logout]);
 
   const fetchPendingRequests = useCallback(async () => {
     const res = await fetch('/api/claims/pending', {
       headers: { 'Authorization': `Bearer ${token}` }
     });
+    if (res.status === 401 || res.status === 403) return logout();
     if (res.ok) setPendingRequests(await res.json());
-  }, [token]);
+  }, [token, logout]);
 
   useEffect(() => { 
     // Initial fetch
@@ -49,7 +51,14 @@ export default function DonorDashboard() {
     });
     if (res.ok) {
       setMsg('Batch posted successfully!');
-      setForm({ description: '', batch_type: 'Dry_Goods', weight_kg: '', expiry_hours: '24', delivery_city: '' });
+      setForm(prev => ({ 
+        ...prev, 
+        description: '', 
+        batch_type: 'Dry_Goods', 
+        weight_kg: '', 
+        expiry_hours: '24', 
+        delivery_city: '' 
+      }));
       fetchBatches();
     } else {
       setMsg('Failed to post batch.');
@@ -62,6 +71,7 @@ export default function DonorDashboard() {
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({ claim_id: claimId })
     });
+    if (res.status === 401 || res.status === 403) return logout();
     if (res.ok) {
       alert('Request accepted successfully!');
       fetchPendingRequests();

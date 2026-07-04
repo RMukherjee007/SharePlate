@@ -48,6 +48,11 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', message: 'Food Waste Redistribution Platform Backend is running' });
 });
 
+// Explicit 404 for undefined API routes
+app.all('/api/*', (req, res) => {
+  res.status(404).json({ error: 'API route not found' });
+});
+
 // Catch-all route to serve React's index.html for client-side routing
 app.use((req, res, next) => {
   if (req.method === 'GET' && !req.path.startsWith('/api')) {

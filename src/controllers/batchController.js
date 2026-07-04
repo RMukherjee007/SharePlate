@@ -12,7 +12,13 @@ const getAvailableBatchesNearby = async (req, res) => {
 
   try {
     // Check Cache first
-    const cachedBatches = await redisClient.get(cacheKey);
+    let cachedBatches = null;
+    try {
+      cachedBatches = await redisClient.get(cacheKey);
+    } catch (redisErr) {
+      console.warn('Redis GET error, falling back to MySQL:', redisErr.message);
+    }
+
     if (cachedBatches) {
       console.log(`Serving batches from Redis Cache`);
       return res.status(200).json(JSON.parse(cachedBatches));
@@ -64,7 +70,11 @@ const getAvailableBatchesNearby = async (req, res) => {
     };
 
     // Set Cache with 1-hour TTL (3600 seconds)
-    await redisClient.set(cacheKey, JSON.stringify(resultData), { EX: 3600 });
+    try {
+      await redisClient.set(cacheKey, JSON.stringify(resultData), { EX: 3600 });
+    } catch (redisErr) {
+      console.warn('Redis SET error, ignoring:', redisErr.message);
+    }
 
     res.status(200).json(resultData);
   } catch (error) {
@@ -124,20 +134,23 @@ const createBatch = async (req, res) => {
 
       await connection.commit();
       
-      // Cache Invalidation: Delete both specific city and 'all' caches
-      const cacheKey = `batches:${delivery_city.trim().toLowerCase()}`;
-      await redisClient.del(cacheKey);
-      await redisClient.del('batches:all');
-      console.log(`Successfully invalidated Redis cache for ${cacheKey} and batches:all`);
+      // Cache Invalidation & Pub/Sub
+      try {
+        const cacheKey = `batches:${delivery_city.trim().toLowerCase()}`;
+        await redisClient.del(cacheKey);
+        await redisClient.del('batches:all');
+        console.log(`Successfully invalidated Redis cache for ${cacheKey} and batches:all`);
 
-      // Publish event to Redis Pub/Sub
-      await redisClient.publish('inventory_updates', JSON.stringify({
-        type: 'NEW_BATCH',
-        city: delivery_city.trim(),
-        batch_id: result.insertId,
-        description,
-        weight_kg
-      }));
+        await redisClient.publish('inventory_updates', JSON.stringify({
+          type: 'NEW_BATCH',
+          city: delivery_city.trim(),
+          batch_id: result.insertId,
+          description,
+          weight_kg
+        }));
+      } catch (redisErr) {
+        console.warn('Redis DEL/PUBLISH error after successful commit:', redisErr.message);
+      }
 
       res.status(201).json({
         message: 'Food batch posted successfully!',

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 
 export default function ReceiverDashboard() {
-  const { user, token } = useAuth();
+  const { user, token, logout } = useAuth();
   const [batches, setBatches] = useState([]);
   const [myClaims, setMyClaims] = useState([]);
   const [msg, setMsg] = useState('');
@@ -29,10 +29,11 @@ export default function ReceiverDashboard() {
     const res = await fetch('/api/claims/my-claims', {
       headers: { 'Authorization': `Bearer ${token}` }
     });
+    if (res.status === 401 || res.status === 403) return logout();
     if (res.ok) {
       setMyClaims(await res.json());
     }
-  }, [token]);
+  }, [token, logout]);
 
   useEffect(() => { 
     // Initial fetch
@@ -59,6 +60,8 @@ export default function ReceiverDashboard() {
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({ batch_id: batchId, charity_name: charityName, charity_address: charityAddress })
     });
+    if (res.status === 401 || res.status === 403) return logout();
+
     if (res.ok) {
       setMsg(`Request sent for Batch #${batchId}! Waiting for restaurant approval.`);
       fetchNearby(activeSearchCity);
