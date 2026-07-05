@@ -49,7 +49,7 @@ app.get('/health', (req, res) => {
 });
 
 // Explicit 404 for undefined API routes
-app.all('/api/*', (req, res) => {
+app.use('/api', (req, res) => {
   res.status(404).json({ error: 'API route not found' });
 });
 
