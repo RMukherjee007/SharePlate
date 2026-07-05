@@ -1,4 +1,5 @@
 const pool = require('../config/db');
+const { redisClient } = require('../config/redis');
 
 /**
  * Basic Demand Forecasting Algorithm
@@ -85,6 +86,19 @@ const getForecastAndEfficiency = async (req, res) => {
 
 const getGlobalStats = async (req, res) => {
   try {
+    const cacheKey = 'analytics:global_stats';
+    let cachedStats = null;
+    
+    try {
+      cachedStats = await redisClient.get(cacheKey);
+    } catch (redisErr) {
+      console.warn('Redis GET error, falling back to MySQL:', redisErr.message);
+    }
+
+    if (cachedStats) {
+      return res.status(200).json(JSON.parse(cachedStats));
+    }
+
     const [rows] = await pool.execute(`
       SELECT 
         SUM(CASE WHEN status = 'claimed' THEN weight_kg ELSE 0 END) as total_kg,
@@ -93,10 +107,18 @@ const getGlobalStats = async (req, res) => {
     `);
     
     const stats = rows[0] || {};
-    res.status(200).json({
+    const responseData = {
       totalKg: parseFloat(stats.total_kg || 0).toFixed(1),
       totalTransactions: parseInt(stats.total_transactions || 0, 10)
-    });
+    };
+
+    try {
+      await redisClient.set(cacheKey, JSON.stringify(responseData), { EX: 60 });
+    } catch (redisErr) {
+      console.warn('Redis SET error, ignoring:', redisErr.message);
+    }
+
+    res.status(200).json(responseData);
   } catch (error) {
     console.error('Global Stats Error:', error);
     res.status(500).json({ error: 'Failed to fetch global stats' });
