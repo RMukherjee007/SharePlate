@@ -14,10 +14,11 @@ import ProtectedRoute from './components/ProtectedRoute';
 const DonorDashboard = lazy(() => import('./pages/dashboards/DonorDashboard'));
 const ReceiverDashboard = lazy(() => import('./pages/dashboards/ReceiverDashboard'));
 const AdminDashboard = lazy(() => import('./pages/dashboards/AdminDashboard'));
-// import { useAuth } from './context/AuthContext';
+import { useAuth } from './context/AuthContext';
 import './App.css';
 
 function App() {
+  const { user, logout } = useAuth();
 
   return (
     <div className="app-container">
@@ -30,6 +31,14 @@ function App() {
           <Link to="/charities">Charities</Link>
           <Link to="/analytics">Analytics</Link>
           <Link to="/contact">Contact</Link>
+          {user ? (
+            <>
+              <Link to={user.role === 'Restaurant' ? '/donor' : user.role === 'NGO' ? '/receiver' : '/admin'} style={{ fontWeight: 'bold', color: 'var(--color-dark-brown)' }}>Dashboard</Link>
+              <button onClick={logout} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', fontSize: '1rem', padding: '0' }}>Logout</button>
+            </>
+          ) : (
+            <Link to="/register" style={{ fontWeight: 'bold', color: 'var(--color-dark-brown)' }}>Register</Link>
+          )}
         </div>
       </nav>
 

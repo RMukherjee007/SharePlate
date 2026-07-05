@@ -6,7 +6,7 @@ function Home() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
-  const { login } = useAuth();
+  const { user, login } = useAuth();
   const navigate = useNavigate();
   
   const [reviews, setReviews] = useState([]);
@@ -66,7 +66,21 @@ function Home() {
   const averageRating = reviews.length > 0 ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1) : 0;
   const reviewCount = reviews.length;
 
-  const loginBox = (
+  const loginBox = user ? (
+    <div className="quote-form-container">
+      <h3 className="form-title">Welcome Back, {user.name}!</h3>
+      <p style={{ marginBottom: '20px', fontSize: '1rem', color: '#666' }}>
+        You are currently logged in as a {user.role === 'NGO' ? 'Charity/NGO' : user.role}.
+      </p>
+      <button 
+        onClick={() => navigate(user.role === 'Restaurant' ? '/donor' : user.role === 'NGO' ? '/receiver' : '/admin')} 
+        className="btn-dark"
+        style={{ width: '100%', padding: '15px' }}
+      >
+        Go to Dashboard
+      </button>
+    </div>
+  ) : (
     <div className="quote-form-container">
       <h3 className="form-title">Partner Login</h3>
       <p style={{ marginBottom: '20px', fontSize: '0.9rem', color: '#666' }}>
