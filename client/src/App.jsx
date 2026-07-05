@@ -24,6 +24,7 @@ const DonorDashboard = lazy(() => import('./pages/dashboards/DonorDashboard'));
 const ReceiverDashboard = lazy(() => import('./pages/dashboards/ReceiverDashboard'));
 const AdminDashboard = lazy(() => import('./pages/dashboards/AdminDashboard'));
 import ProtectedRoute from './components/ProtectedRoute';
+import ErrorBoundary from './components/ErrorBoundary';
 import { useAuth } from './context/AuthContext';
 import './App.css';
 
@@ -42,7 +43,7 @@ function App() {
           <Link to="/contact" onMouseEnter={importContact}>Contact</Link>
           {user ? (
             <>
-              <Link to={user.role === 'Restaurant' ? '/donor' : user.role === 'NGO' ? '/receiver' : '/admin'} style={{ fontWeight: 'bold', color: 'var(--color-dark-brown)' }}>Dashboard</Link>
+              <Link to={user.role === 'Restaurant' ? '/donor' : (user.role === 'NGO' || user.role === 'Charity') ? '/receiver' : '/admin'} style={{ fontWeight: 'bold', color: 'var(--color-dark-brown)' }}>Dashboard</Link>
               <button onClick={logout} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', fontSize: '1rem', padding: '0' }}>Logout</button>
             </>
           ) : (
@@ -52,25 +53,27 @@ function App() {
       </nav>
 
       {/* Route Views */}
-      <Suspense fallback={<div style={{ padding: '100px 40px', textAlign: 'center' }}>Loading...</div>}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/donors" element={<Donors />} />
-          <Route path="/charities" element={<Charities />} />
-          <Route path="/how-to-join" element={<HowToJoin />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/accessibility" element={<Accessibility />} />
-          <Route path="/analytics" element={<Analytics />} />
-          
-          {/* Protected Dashboards */}
-          <Route path="/donor" element={<ProtectedRoute allowedRoles={['Restaurant']}><DonorDashboard /></ProtectedRoute>} />
-          <Route path="/receiver" element={<ProtectedRoute allowedRoles={['NGO']}><ReceiverDashboard /></ProtectedRoute>} />
-          <Route path="/admin" element={<ProtectedRoute allowedRoles={['Admin']}><AdminDashboard /></ProtectedRoute>} />
-        </Routes>
-      </Suspense>
+      <ErrorBoundary>
+        <Suspense fallback={<div style={{ padding: '100px 40px', textAlign: 'center' }}>Loading...</div>}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/donors" element={<Donors />} />
+            <Route path="/charities" element={<Charities />} />
+            <Route path="/how-to-join" element={<HowToJoin />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/accessibility" element={<Accessibility />} />
+            <Route path="/analytics" element={<Analytics />} />
+            
+            {/* Protected Dashboards */}
+            <Route path="/donor" element={<ProtectedRoute allowedRoles={['Restaurant']}><DonorDashboard /></ProtectedRoute>} />
+            <Route path="/receiver" element={<ProtectedRoute allowedRoles={['NGO', 'Charity']}><ReceiverDashboard /></ProtectedRoute>} />
+            <Route path="/admin" element={<ProtectedRoute allowedRoles={['Admin']}><AdminDashboard /></ProtectedRoute>} />
+          </Routes>
+        </Suspense>
+      </ErrorBoundary>
 
       {/* Shared Footer */}
       <footer className="footer-section">
