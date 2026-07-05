@@ -83,4 +83,24 @@ const getForecastAndEfficiency = async (req, res) => {
   }
 };
 
-module.exports = { getForecastAndEfficiency };
+const getGlobalStats = async (req, res) => {
+  try {
+    const [rows] = await pool.execute(`
+      SELECT 
+        SUM(CASE WHEN status = 'claimed' THEN weight_kg ELSE 0 END) as total_kg,
+        SUM(CASE WHEN status = 'claimed' THEN 1 ELSE 0 END) as total_transactions
+      FROM Food_Batches
+    `);
+    
+    const stats = rows[0] || {};
+    res.status(200).json({
+      totalKg: parseFloat(stats.total_kg || 0).toFixed(1),
+      totalTransactions: parseInt(stats.total_transactions || 0, 10)
+    });
+  } catch (error) {
+    console.error('Global Stats Error:', error);
+    res.status(500).json({ error: 'Failed to fetch global stats' });
+  }
+};
+
+module.exports = { getForecastAndEfficiency, getGlobalStats };
