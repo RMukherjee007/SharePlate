@@ -1,4 +1,4 @@
-import { Suspense, lazy, useState, useEffect } from 'react';
+import { Suspense, lazy } from 'react';
 import { Routes, Route, Link } from 'react-router-dom';
 import Home from './pages/Home';
 const importRegister = () => import('./pages/Register');
@@ -29,24 +29,8 @@ import './App.css';
 
 function App() {
   const { user, logout } = useAuth();
-  const [globalStats, setGlobalStats] = useState({ totalKg: '0', totalTransactions: 0 });
-
-  useEffect(() => {
-    fetch('/api/analytics/global-stats')
-      .then(res => res.json())
-      .then(data => {
-        if (data && !data.error) setGlobalStats(data);
-      })
-      .catch(err => console.error("Failed to load global stats", err));
-  }, []);
-
   return (
     <div className="app-container">
-      {/* Global Impact Banner */}
-      <div style={{ background: 'var(--color-dark-brown)', color: 'var(--color-light-tan)', textAlign: 'center', padding: '8px 15px', fontSize: '0.9rem', fontWeight: 'bold' }}>
-        🌍 Together we have rescued {globalStats.totalKg} kg of food across {globalStats.totalTransactions} successful transactions!
-      </div>
-      
       {/* Shared Navbar */}
       <nav className="navbar">
         <Link to="/" className="nav-brand" style={{textDecoration: 'none', color: 'inherit'}}>SharePlate</Link>

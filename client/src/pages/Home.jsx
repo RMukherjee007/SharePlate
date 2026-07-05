@@ -12,8 +12,9 @@ function Home() {
   const [reviews, setReviews] = useState([]);
   const [reviewForm, setReviewForm] = useState({ rating: 5, comments: '' });
   const [reviewStatus, setReviewStatus] = useState('');
+  const [globalStats, setGlobalStats] = useState({ totalKg: '0', totalTransactions: 0 });
 
-  // Fetch reviews on mount
+  // Fetch reviews and stats on mount
   useEffect(() => {
     fetch('/api/reviews')
       .then(res => res.json())
@@ -21,6 +22,13 @@ function Home() {
         if (Array.isArray(data)) setReviews(data);
       })
       .catch(err => console.error("Failed to load reviews", err));
+      
+    fetch('/api/analytics/global-stats')
+      .then(res => res.json())
+      .then(data => {
+        if (data && !data.error) setGlobalStats(data);
+      })
+      .catch(err => console.error("Failed to load global stats", err));
   }, []);
 
   const handleReviewChange = (e) => {
@@ -214,13 +222,27 @@ function Home() {
       </section>
       
       {/* Logos Section */}
-      <section className="logos-section">
+      <section className="logos-section" style={{ position: 'relative' }}>
         <h2 className="features-header text-center">Proud to be Covered Here</h2>
         <div className="logos-grid">
           <h2>FoodBank</h2>
           <h2>SharePlate</h2>
           <h2>EcoDaily</h2>
           <h2>ZeroWaste</h2>
+        </div>
+        <div style={{
+          position: 'absolute',
+          bottom: '10px',
+          right: '20px',
+          background: 'var(--color-dark-brown)',
+          color: 'var(--color-light-tan)',
+          padding: '8px 15px',
+          borderRadius: '8px',
+          fontSize: '0.85rem',
+          fontWeight: 'bold',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+        }}>
+          🌍 Rescued {globalStats.totalKg} kg of food across {globalStats.totalTransactions} donations!
         </div>
       </section>
 
