@@ -47,7 +47,7 @@ const register = async (req, res) => {
     const token = jwt.sign(
       { user_id, email: email.trim(), role, name: name.trim(), is_verified: false },
       JWT_SECRET,
-      { expiresIn: '24h' }
+      { expiresIn: '30d' }
     );
 
     res.status(201).json({
@@ -88,7 +88,7 @@ const login = async (req, res) => {
     const token = jwt.sign(
       { user_id: user.user_id, email: user.email, role: user.role, name: user.name, is_verified: Boolean(user.is_verified) },
       JWT_SECRET,
-      { expiresIn: '24h' }
+      { expiresIn: '30d' }
     );
 
     res.status(200).json({
@@ -104,7 +104,7 @@ const login = async (req, res) => {
     });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ error: 'Server error during login' });
+    res.status(500).json({ error: 'Server error during login', details: error.message, stack: error.stack });
   }
 };
 
