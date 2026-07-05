@@ -33,7 +33,7 @@ function Home() {
     try {
       const user = await login(email, password);
       if (user.role === 'Restaurant') navigate('/donor');
-      else if (user.role === 'Charity') navigate('/receiver');
+      else if (user.role === 'NGO') navigate('/receiver');
       else if (user.role === 'Admin') navigate('/admin');
     } catch (err) {
       setLoginError(err.message);

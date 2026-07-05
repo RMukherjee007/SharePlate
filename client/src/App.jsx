@@ -49,7 +49,7 @@ function App() {
           
           {/* Protected Dashboards */}
           <Route path="/donor" element={<ProtectedRoute allowedRoles={['Restaurant']}><DonorDashboard /></ProtectedRoute>} />
-          <Route path="/receiver" element={<ProtectedRoute allowedRoles={['Charity']}><ReceiverDashboard /></ProtectedRoute>} />
+          <Route path="/receiver" element={<ProtectedRoute allowedRoles={['NGO']}><ReceiverDashboard /></ProtectedRoute>} />
           <Route path="/admin" element={<ProtectedRoute allowedRoles={['Admin']}><AdminDashboard /></ProtectedRoute>} />
         </Routes>
       </Suspense>
