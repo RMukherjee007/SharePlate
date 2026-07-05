@@ -1,10 +1,24 @@
 const pool = require('../config/db');
+const { redisClient } = require('../config/redis');
 
 /**
  * Fetch recent reviews to display in the UI.
  */
 const getReviews = async (req, res) => {
   try {
+    const cacheKey = 'reviews:recent';
+    let cachedReviews = null;
+    
+    try {
+      cachedReviews = await redisClient.get(cacheKey);
+    } catch (redisErr) {
+      console.warn('Redis GET error, falling back to MySQL:', redisErr.message);
+    }
+
+    if (cachedReviews) {
+      return res.status(200).json(JSON.parse(cachedReviews));
+    }
+
     const query = `
       SELECT r.review_id, r.rating, r.comments, r.created_at, u.name as reviewer_name
       FROM Feedback_Reviews r
@@ -13,6 +27,13 @@ const getReviews = async (req, res) => {
       LIMIT 5;
     `;
     const [reviews] = await pool.execute(query);
+    
+    try {
+      await redisClient.set(cacheKey, JSON.stringify(reviews), { EX: 60 });
+    } catch (redisErr) {
+      console.warn('Redis SET error, ignoring:', redisErr.message);
+    }
+
     res.status(200).json(reviews);
   } catch (error) {
     console.error('Error fetching reviews:', error);
@@ -47,6 +68,13 @@ const createReview = async (req, res) => {
       'INSERT INTO Feedback_Reviews (claim_id, reviewer_id, rating, comments) VALUES (?, ?, ?, ?)',
       [dummyClaimId, dummyReviewerId, rating, comments || '']
     );
+
+    // 3. Invalidate the reviews cache so new review shows up instantly
+    try {
+      await redisClient.del('reviews:recent');
+    } catch (redisErr) {
+      console.warn('Redis DEL error (ignoring):', redisErr.message);
+    }
 
     res.status(201).json({
       message: 'Review submitted successfully!',
