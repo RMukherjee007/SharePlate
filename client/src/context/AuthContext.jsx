@@ -59,7 +59,8 @@ export const AuthProvider = ({ children }) => {
       setUser(data.user);
       return data.user;
     } else {
-      throw new Error(data.error || 'Login failed');
+      const errorMessage = data.details ? `${data.error}: ${data.details}` : (data.error || 'Login failed');
+      throw new Error(errorMessage);
     }
   };
 
