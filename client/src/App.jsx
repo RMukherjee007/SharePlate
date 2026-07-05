@@ -1,15 +1,25 @@
 import { Suspense, lazy, useState, useEffect } from 'react';
 import { Routes, Route, Link } from 'react-router-dom';
 import Home from './pages/Home';
-const Register = lazy(() => import('./pages/Register'));
-const About = lazy(() => import('./pages/About'));
-const Donors = lazy(() => import('./pages/Donors'));
-const Charities = lazy(() => import('./pages/Charities'));
-const HowToJoin = lazy(() => import('./pages/HowToJoin'));
-const Contact = lazy(() => import('./pages/Contact'));
-const Privacy = lazy(() => import('./pages/Privacy'));
-const Accessibility = lazy(() => import('./pages/Accessibility'));
-const Analytics = lazy(() => import('./pages/Analytics'));
+const importRegister = () => import('./pages/Register');
+const importAbout = () => import('./pages/About');
+const importDonors = () => import('./pages/Donors');
+const importCharities = () => import('./pages/Charities');
+const importHowToJoin = () => import('./pages/HowToJoin');
+const importContact = () => import('./pages/Contact');
+const importPrivacy = () => import('./pages/Privacy');
+const importAccessibility = () => import('./pages/Accessibility');
+const importAnalytics = () => import('./pages/Analytics');
+
+const Register = lazy(importRegister);
+const About = lazy(importAbout);
+const Donors = lazy(importDonors);
+const Charities = lazy(importCharities);
+const HowToJoin = lazy(importHowToJoin);
+const Contact = lazy(importContact);
+const Privacy = lazy(importPrivacy);
+const Accessibility = lazy(importAccessibility);
+const Analytics = lazy(importAnalytics);
 const DonorDashboard = lazy(() => import('./pages/dashboards/DonorDashboard'));
 const ReceiverDashboard = lazy(() => import('./pages/dashboards/ReceiverDashboard'));
 const AdminDashboard = lazy(() => import('./pages/dashboards/AdminDashboard'));
@@ -41,18 +51,18 @@ function App() {
       <nav className="navbar">
         <Link to="/" className="nav-brand" style={{textDecoration: 'none', color: 'inherit'}}>SharePlate</Link>
         <div className="nav-links">
-          <Link to="/about">About</Link>
-          <Link to="/donors">Donors</Link>
-          <Link to="/charities">Charities</Link>
-          <Link to="/analytics">Analytics</Link>
-          <Link to="/contact">Contact</Link>
+          <Link to="/about" onMouseEnter={importAbout}>About</Link>
+          <Link to="/donors" onMouseEnter={importDonors}>Donors</Link>
+          <Link to="/charities" onMouseEnter={importCharities}>Charities</Link>
+          <Link to="/analytics" onMouseEnter={importAnalytics}>Analytics</Link>
+          <Link to="/contact" onMouseEnter={importContact}>Contact</Link>
           {user ? (
             <>
               <Link to={user.role === 'Restaurant' ? '/donor' : user.role === 'NGO' ? '/receiver' : '/admin'} style={{ fontWeight: 'bold', color: 'var(--color-dark-brown)' }}>Dashboard</Link>
               <button onClick={logout} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', fontSize: '1rem', padding: '0' }}>Logout</button>
             </>
           ) : (
-            <Link to="/register" style={{ fontWeight: 'bold', color: 'var(--color-dark-brown)' }}>Register</Link>
+            <Link to="/register" onMouseEnter={importRegister} style={{ fontWeight: 'bold', color: 'var(--color-dark-brown)' }}>Register</Link>
           )}
         </div>
       </nav>

@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const compression = require('compression');
+const expressStaticGzip = require('express-static-gzip');
 require('dotenv').config();
 
 const { globalLimiter } = require('./middleware/rateLimiter');
@@ -23,7 +23,6 @@ const PORT = process.env.PORT || 5001;
 app.set('trust proxy', 1);
 
 // Middleware
-app.use(compression());
 app.use(cors());
 app.use(express.json());
 
@@ -40,8 +39,14 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/stream', streamRoutes);
 
-// Serve static files from the React frontend app with caching
-app.use(express.static(path.join(__dirname, '../client/dist'), { maxAge: '1y' }));
+// Serve pre-compressed static files (Brotli/Gzip) to save server CPU
+app.use(expressStaticGzip(path.join(__dirname, '../client/dist'), {
+  enableBrotli: true,
+  orderPreference: ['br', 'gz'],
+  serveStatic: {
+    maxAge: '1y'
+  }
+}));
 
 // Health Check
 app.get('/health', (req, res) => {
