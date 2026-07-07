@@ -44,10 +44,10 @@ function App() {
           {user ? (
             <>
               <Link to={user.role === 'Restaurant' ? '/donor' : (user.role === 'NGO' || user.role === 'Charity') ? '/receiver' : '/admin'} style={{ fontWeight: 'bold', color: 'var(--color-dark-brown)' }}>Dashboard</Link>
-              <button onClick={logout} className="btn-dark">Logout</button>
+              <button onClick={logout} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', fontSize: '1rem', padding: '0', fontFamily: 'inherit' }}>Logout</button>
             </>
           ) : (
-            <Link to="/register" onMouseEnter={importRegister} className="btn-dark" style={{ textDecoration: 'none' }}>Register</Link>
+            <Link to="/register" onMouseEnter={importRegister}>Register</Link>
           )}
         </div>
       </nav>
