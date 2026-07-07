@@ -47,7 +47,7 @@ function App() {
               <button onClick={logout} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', fontSize: '1rem', padding: '0' }}>Logout</button>
             </>
           ) : (
-            <Link to="/register" onMouseEnter={importRegister} className="btn-white" style={{ textDecoration: 'none' }}>Register</Link>
+            <Link to="/register" onMouseEnter={importRegister} className="btn-dark" style={{ textDecoration: 'none' }}>Register</Link>
           )}
         </div>
       </nav>
