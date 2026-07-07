@@ -114,9 +114,10 @@ function Home() {
         />
         <button type="submit" className="btn-dark">Log In</button>
         {loginError && <div className="status-message status-error" style={{marginTop: '15px'}}>{loginError}</div>}
-        <p style={{ marginTop: '20px', textAlign: 'center', fontSize: '0.9rem' }}>
-          Don't have an account? <Link to="/register" style={{ color: 'var(--color-dark-brown)', fontWeight: 'bold' }}>Register here</Link>
-        </p>
+        <div style={{ marginTop: '20px', textAlign: 'center' }}>
+          <p style={{ fontSize: '0.9rem', marginBottom: '10px' }}>Don't have an account?</p>
+          <Link to="/register" className="btn-dark" style={{ textDecoration: 'none', display: 'block', textAlign: 'center', boxSizing: 'border-box' }}>Register</Link>
+        </div>
       </form>
     </div>
   );
