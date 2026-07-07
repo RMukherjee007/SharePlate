@@ -85,10 +85,10 @@ h1, h2, h3, h4, h5, h6 {
   color: #666;
 }
 
-.btn-green {
-  background: #2C5E3B;
-  border: 1px solid #2C5E3B;
-  color: #ffffff;
+.btn-white {
+  background: var(--color-white);
+  border: 1px solid var(--color-white);
+  color: var(--color-dark-brown);
   padding: 12px 24px;
   font-family: var(--font-sans);
   font-size: 14px;
@@ -97,10 +97,11 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: 4px;
   text-align: center;
   display: inline-block;
+  font-weight: bold;
 }
 
-.btn-green:hover {
-  background: #3a7a4d;
-  border-color: #3a7a4d;
-  color: #ffffff;
+.btn-white:hover {
+  background: transparent;
+  border-color: var(--color-white);
+  color: var(--color-white);
 }
