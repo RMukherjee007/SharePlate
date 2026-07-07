@@ -8,7 +8,7 @@ Built with modern cloud-native architecture using React, Node.js, MySQL, Redis, 
 
 ## 🌍 Live Demo
 
-🔗 [https://shareplate-app-883918498227.us-central1.run.app](https://shareplate-app.onrender.com)
+🔗 https://shareplate-app.onrender.com
 
 ---
 
