@@ -92,7 +92,7 @@ function Register() {
               <option value="NGO">NGO / Charity</option>
             </select>
 
-            <button type="submit" className="btn-dark" disabled={loading} style={{ width: '100%' }}>
+            <button type="submit" className="btn-green" disabled={loading} style={{ width: '100%' }}>
               {loading ? 'Registering...' : 'Register'}
             </button>
             

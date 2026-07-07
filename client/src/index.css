@@ -84,3 +84,22 @@ h1, h2, h3, h4, h5, h6 {
 .input-field::placeholder {
   color: #666;
 }
+
+.btn-green {
+  background: transparent;
+  border: 1px solid #2C5E3B;
+  color: #2C5E3B;
+  padding: 12px 24px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 4px;
+  text-align: center;
+  display: inline-block;
+}
+
+.btn-green:hover {
+  background: #2C5E3B;
+  color: var(--color-white);
+}
