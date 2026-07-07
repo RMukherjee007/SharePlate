@@ -86,9 +86,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-green {
-  background: transparent;
+  background: #2C5E3B;
   border: 1px solid #2C5E3B;
-  color: #2C5E3B;
+  color: #ffffff;
   padding: 12px 24px;
   font-family: var(--font-sans);
   font-size: 14px;
@@ -100,6 +100,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-green:hover {
-  background: #2C5E3B;
-  color: var(--color-white);
+  background: #3a7a4d;
+  border-color: #3a7a4d;
+  color: #ffffff;
 }
