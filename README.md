@@ -69,7 +69,7 @@ Backend API (Node.js + Express)
   ↓             ↓             ↓
 MySQL         Redis        JWT Auth
         ↓
-Docker + Google Cloud Run
+Docker + Render / Vercel / GCP
 ```
 
 ---
