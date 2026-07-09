@@ -222,15 +222,6 @@ docker run -p 5001:5001 shareplate
 
 ---
 
-## ☁️ Cloud Deployment
-
-This project is designed to be deployed using Google Cloud Run.
-
-Live deployment (Example):
-
-https://shareplate-app-883918498227.us-central1.run.app
-
----
 
 ## 🚀 Future Improvements
 
