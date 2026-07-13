@@ -7,7 +7,63 @@
     <title>SharePlate</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <style>
+        /* Critical App Shell CSS to guarantee immediate paint */
+        :root {
+          --color-dark-brown: #332015;
+          --color-text-light: #f5eedc;
+          --font-sans: 'Inter', sans-serif;
+        }
+        body { margin: 0; font-family: var(--font-sans); }
+        .skeleton-navbar {
+          display: flex; justify-content: space-between; align-items: center;
+          padding: 20px 40px; background-color: var(--color-dark-brown); color: var(--color-text-light);
+        }
+        .skeleton-nav-brand {
+          font-weight: 600; font-size: 1.2rem; letter-spacing: 1px;
+        }
+        .skeleton-nav-links {
+          font-size: 0.9rem;
+        }
+        .skeleton-header-section {
+          background-color: var(--color-dark-brown); color: var(--color-text-light);
+          padding: 80px 40px 100px; display: flex; justify-content: space-between; align-items: flex-end;
+        }
+        .skeleton-header-title {
+          font-size: 4.5rem; line-height: 1.1; max-width: 600px; letter-spacing: -1px; margin: 0;
+        }
+        .skeleton-header-content { max-width: 400px; }
+        .skeleton-header-text {
+          font-size: 1rem; line-height: 1.6; margin-bottom: 30px; opacity: 0.9; margin: 0;
+        }
+        
+        /* Basic responsiveness for skeleton */
+        @media (max-width: 768px) {
+          .skeleton-header-section { flex-direction: column; align-items: flex-start; padding: 40px 20px; }
+          .skeleton-header-title { font-size: 2.5rem; margin-bottom: 20px; }
+          .skeleton-navbar { padding: 20px; }
+        }
+      </style>
+
+      <div class="app-container">
+        <!-- Shared Navbar Skeleton -->
+        <nav class="skeleton-navbar">
+          <div class="skeleton-nav-brand">SharePlate</div>
+          <div class="skeleton-nav-links">Loading...</div>
+        </nav>
+
+        <!-- Header Section Skeleton -->
+        <section class="skeleton-header-section">
+          <h1 class="skeleton-header-title">Bridging the Gap Between<br/>Surplus and Starvation</h1>
+          <div class="skeleton-header-content">
+            <p class="skeleton-header-text">
+              Every day, tons of perfectly good food from mess halls and restaurants goes to waste. Our platform connects these food donors directly to NGOs and charities, ensuring surplus meals reach people in need instead of the landfill.
+            </p>
+          </div>
+        </section>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
