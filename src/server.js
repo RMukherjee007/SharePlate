@@ -13,7 +13,7 @@ const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
 const { router: streamRoutes, broadcast } = require('./routes/streamRoutes');
-const { redisSubscriber } = require('./config/redis');
+const { redisSubscriber, redisConnectionPromise } = require('./config/redis');
 const { startExpiryDetection } = require('./services/expiryService');
 
 const app = express();
@@ -21,13 +21,25 @@ const PORT = process.env.PORT || 5001;
 
 // Trust the first proxy in production for accurate IP rate limiting
 app.set('trust proxy', 1);
+app.disable('x-powered-by');
+
+// Security Headers
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+  next();
+});
 
 // Middleware
-app.use(cors());
-app.use(express.json());
+app.use(cors({
+  origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : true
+}));
+app.use(express.json({ limit: '16kb' }));
 
-// Apply global rate limiting (100 req / 15 min)
-app.use(globalLimiter);
+// Apply rate limiting to API routes (1000 req / 15 min)
+app.use('/api', globalLimiter);
 
 // Routes
 app.use('/api/batches', batchRoutes);
@@ -77,7 +89,7 @@ app.use((err, req, res, next) => {
 app.listen(PORT, async () => {
   console.log(`
    Server is running on http://localhost:${PORT}
-   Rate Limiting: 100 req / 15 min
+   Rate Limiting: 1000 req / 15 min
    MySQL Connectivity: Pool Initialized
    Redis: Client Initialized
   `);
@@ -86,6 +98,7 @@ app.listen(PORT, async () => {
   startExpiryDetection();
 
   try {
+    await redisConnectionPromise;
     if (redisSubscriber.isOpen) {
       await redisSubscriber.subscribe('inventory_updates', (message) => {
         console.log('SSE Broadcast:', message);

@@ -43,7 +43,7 @@ function App() {
           <Link to="/contact" onMouseEnter={importContact}>Contact</Link>
           {user ? (
             <>
-              <Link to={user.role === 'Restaurant' ? '/donor' : (user.role === 'NGO' || user.role === 'Charity') ? '/receiver' : '/admin'} style={{ fontWeight: 'bold', color: 'var(--color-dark-brown)' }}>Dashboard</Link>
+              <Link to={user.role === 'Restaurant' ? '/donor' : (user.role === 'NGO' || user.role === 'Charity') ? '/receiver' : '/admin'} style={{ fontWeight: 'bold', color: 'var(--color-text-light)' }}>Dashboard</Link>
               <button onClick={logout} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', fontSize: '1rem', padding: '0', fontFamily: 'inherit' }}>Logout</button>
             </>
           ) : (

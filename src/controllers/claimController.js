@@ -13,19 +13,27 @@ const requestBatch = async (req, res) => {
     return res.status(400).json({ error: 'batch_id, charity_name, and charity_address are required' });
   }
 
-  // Block unverified NGOs
-  if (req.user.role === 'NGO' && !req.user.is_verified) {
-    return res.status(403).json({ error: 'Your account is pending verification. You cannot claim food batches until an admin approves your organization.' });
+  if (String(charity_name).trim().length > 255 || String(charity_address).trim().length > 255) {
+    return res.status(400).json({ error: 'Charity name and address must be 255 characters or fewer' });
   }
 
   try {
+    // Check live verification status from DB for NGOs/Charities so newly verified users don't need to re-login
+    if (req.user.role === 'NGO' || req.user.role === 'Charity') {
+      const [userRows] = await pool.execute('SELECT is_verified FROM Users WHERE user_id = ?', [charity_id]);
+      const isVerified = userRows.length > 0 ? Boolean(userRows[0].is_verified) : Boolean(req.user.is_verified);
+      if (!isVerified) {
+        return res.status(403).json({ error: 'Your account is pending verification. You cannot claim food batches until an admin approves your organization.' });
+      }
+    }
+
     const connection = await pool.getConnection();
     await connection.beginTransaction();
 
     try {
-      // 1. Check if the batch is still 'available' and lock the row
+      // 1. Check if the batch is still 'available' and not expired, and lock the row
       const [batches] = await connection.execute(
-        'SELECT status, delivery_city FROM Food_Batches WHERE batch_id = ? FOR UPDATE',
+        'SELECT status, delivery_city, (expiry_timestamp IS NOT NULL AND expiry_timestamp <= NOW()) AS is_expired FROM Food_Batches WHERE batch_id = ? FOR UPDATE',
         [batch_id]
       );
 
@@ -33,7 +41,7 @@ const requestBatch = async (req, res) => {
         throw new Error('Food batch not found');
       }
 
-      if (batches[0].status !== 'available') {
+      if (batches[0].status !== 'available' || batches[0].is_expired) {
         throw new Error('This batch is no longer available for requests');
       }
 
@@ -53,15 +61,17 @@ const requestBatch = async (req, res) => {
 
       // Invalidate Cache so it disappears from 'available' immediately
       try {
-        const delivery_city = batches[0].delivery_city;
-        const cacheKey = `batches:${delivery_city.trim().toLowerCase()}`;
-        await redisClient.del(cacheKey);
+        const delivery_city = (batches[0].delivery_city || '').trim();
+        if (delivery_city) {
+          const cacheKey = `batches:${delivery_city.toLowerCase()}`;
+          await redisClient.del(cacheKey);
+        }
         await redisClient.del('batches:all');
 
         // Publish event to Redis Pub/Sub
         await redisClient.publish('inventory_updates', JSON.stringify({
           type: 'BATCH_REQUESTED',
-          city: delivery_city.trim(),
+          city: delivery_city,
           batch_id
         }));
       } catch (redisErr) {
@@ -150,15 +160,18 @@ const acceptClaim = async (req, res) => {
 
       // Invalidate the cache for this city and all batches
       try {
-        const delivery_city = claims[0].delivery_city;
-        const cacheKey = `batches:${delivery_city.trim().toLowerCase()}`;
-        await redisClient.del(cacheKey);
+        const delivery_city = (claims[0].delivery_city || '').trim();
+        if (delivery_city) {
+          const cacheKey = `batches:${delivery_city.toLowerCase()}`;
+          await redisClient.del(cacheKey);
+        }
         await redisClient.del('batches:all');
+        await redisClient.del('analytics:global_stats');
 
         // Publish event to Redis Pub/Sub
         await redisClient.publish('inventory_updates', JSON.stringify({
           type: 'CLAIM_ACCEPTED',
-          city: delivery_city.trim(),
+          city: delivery_city,
           batch_id,
           claim_id
         }));
@@ -186,7 +199,15 @@ const getMyClaims = async (req, res) => {
   const charity_id = req.user.user_id;
   try {
     const query = `
-      SELECT c.claim_id, c.batch_id, c.pickup_status, c.claimed_at, fb.description, fb.weight_kg, u.name as donor_name, u.address as donor_address
+      SELECT 
+        c.claim_id, 
+        c.batch_id, 
+        c.pickup_status, 
+        c.claimed_at, 
+        fb.description, 
+        fb.weight_kg, 
+        COALESCE(fb.donor_name, u.name) as donor_name, 
+        COALESCE(fb.pickup_address, u.address) as donor_address
       FROM Claims c
       JOIN Food_Batches fb ON c.batch_id = fb.batch_id
       JOIN Users u ON fb.donor_id = u.user_id

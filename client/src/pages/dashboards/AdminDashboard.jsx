@@ -2,17 +2,26 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 
 export default function AdminDashboard() {
-  const { token } = useAuth();
+  const { token, logout } = useAuth();
   const [data, setData] = useState({ metrics: {}, users: [] });
 
-  const fetchData = useCallback(() => {
-    fetch('/api/admin/overview', {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-    .then(res => res.json())
-    .then(json => setData(json))
-    .catch(err => console.error(err));
-  }, [token]);
+  const fetchData = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/overview', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.status === 401 || res.status === 403) return logout();
+      if (res.ok) {
+        const json = await res.json();
+        setData({
+          metrics: json.metrics || {},
+          users: Array.isArray(json.users) ? json.users : []
+        });
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }, [token, logout]);
 
   useEffect(() => {
     fetchData();
@@ -74,7 +83,7 @@ export default function AdminDashboard() {
                 <tr key={u.user_id} style={{ borderBottom: '1px solid #fef08a' }}>
                   <td style={{ padding: '10px', color: '#713f12' }}>{u.user_id}</td>
                   <td style={{ padding: '10px', color: '#713f12' }}><strong>{u.name}</strong></td>
-                  <td style={{ padding: '10px', color: '#713f12' }}>{u.address}</td>
+                  <td style={{ padding: '10px', color: '#713f12' }}>{u.address || u.email || '-'}</td>
                   <td style={{ padding: '10px' }}>
                     <button 
                       onClick={() => verifyNGO(u.user_id)}
@@ -107,7 +116,7 @@ export default function AdminDashboard() {
               <td style={{ padding: '10px' }}>{u.user_id}</td>
               <td style={{ padding: '10px' }}><strong>{u.role}</strong></td>
               <td style={{ padding: '10px' }}>{u.name}</td>
-              <td style={{ padding: '10px' }}>{u.address}</td>
+              <td style={{ padding: '10px' }}>{u.address || u.email || '-'}</td>
               <td style={{ padding: '10px' }}>
                 {u.role === 'NGO' ? (u.is_verified ? '✅ Yes' : '❌ Pending') : '-'}
               </td>

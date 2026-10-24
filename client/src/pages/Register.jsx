@@ -35,7 +35,7 @@ function Register() {
       const user = await login(email, password);
       
       if (user.role === 'Restaurant') navigate('/donor');
-      else if (user.role === 'NGO') navigate('/receiver');
+      else if (user.role === 'NGO' || user.role === 'Charity') navigate('/receiver');
       else if (user.role === 'Admin') navigate('/admin');
 
     } catch (err) {
@@ -75,9 +75,11 @@ function Register() {
             <input 
               type="password" 
               className="input-field" 
-              placeholder="Password" 
+              placeholder="Password (min. 8 characters)" 
               value={password} 
               onChange={(e) => setPassword(e.target.value)} 
+              minLength={8}
+              maxLength={72}
               required 
               style={{ marginBottom: '10px' }}
             />

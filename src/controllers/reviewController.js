@@ -47,10 +47,16 @@ const getReviews = async (req, res) => {
  * this automatically binds the review to an existing claim/user.
  */
 const createReview = async (req, res) => {
-  const { rating, comments, name } = req.body;
+  const { rating, comments } = req.body;
+  const numericRating = Number(rating);
 
-  if (!rating || rating < 1 || rating > 5) {
+  if (!numericRating || isNaN(numericRating) || numericRating < 1 || numericRating > 5) {
     return res.status(400).json({ error: 'Rating must be between 1 and 5' });
+  }
+
+  const sanitizedComments = comments ? String(comments).trim() : '';
+  if (sanitizedComments.length > 500) {
+    return res.status(400).json({ error: 'Review comments must be 500 characters or fewer' });
   }
 
   try {
@@ -66,7 +72,7 @@ const createReview = async (req, res) => {
     // 2. Insert the review
     const [result] = await pool.execute(
       'INSERT INTO Feedback_Reviews (claim_id, reviewer_id, rating, comments) VALUES (?, ?, ?, ?)',
-      [dummyClaimId, dummyReviewerId, rating, comments || '']
+      [dummyClaimId, dummyReviewerId, numericRating, sanitizedComments]
     );
 
     // 3. Invalidate the reviews cache so new review shows up instantly

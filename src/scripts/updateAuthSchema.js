@@ -16,7 +16,7 @@ async function updateAuthSchema() {
     console.log('Enforcing ENUM on role column...');
     await connection.execute(`
       ALTER TABLE Users 
-      MODIFY COLUMN role ENUM('NGO', 'Restaurant') NOT NULL
+      MODIFY COLUMN role ENUM('NGO', 'Restaurant', 'Admin') NOT NULL
     `);
 
     // 3. Check if email column exists, add if missing

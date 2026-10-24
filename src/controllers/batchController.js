@@ -7,8 +7,9 @@ const { redisClient } = require('../config/redis');
  */
 const getAvailableBatchesNearby = async (req, res) => {
   const { city } = req.query;
+  const normalizedCity = city ? city.trim().toLowerCase() : '';
 
-  const cacheKey = city ? `batches:${city.trim().toLowerCase()}` : 'batches:all';
+  const cacheKey = normalizedCity ? `batches:${normalizedCity}` : 'batches:all';
 
   try {
     // Check Cache first
@@ -29,7 +30,7 @@ const getAvailableBatchesNearby = async (req, res) => {
     let query;
     let queryParams = [];
     
-    if (city && city.trim() !== '') {
+    if (normalizedCity !== '') {
       query = `
         SELECT 
           fb.batch_id, 
@@ -41,10 +42,12 @@ const getAvailableBatchesNearby = async (req, res) => {
           fb.donor_name,
           fb.pickup_address AS address
         FROM Food_Batches fb
-        WHERE fb.status = 'available' AND LOWER(fb.delivery_city) = ?
+        WHERE fb.status = 'available'
+          AND (fb.expiry_timestamp IS NULL OR fb.expiry_timestamp > NOW())
+          AND LOWER(fb.delivery_city) = ?
         ORDER BY fb.batch_id DESC;
       `;
-      queryParams = [city.trim().toLowerCase()];
+      queryParams = [normalizedCity];
     } else {
       query = `
         SELECT 
@@ -58,6 +61,7 @@ const getAvailableBatchesNearby = async (req, res) => {
           fb.pickup_address AS address
         FROM Food_Batches fb
         WHERE fb.status = 'available'
+          AND (fb.expiry_timestamp IS NULL OR fb.expiry_timestamp > NOW())
         ORDER BY fb.batch_id DESC;
       `;
     }
@@ -118,9 +122,29 @@ const createBatch = async (req, res) => {
     return res.status(400).json({ error: 'Missing required fields including donor_name and pickup_address' });
   }
 
+  const ALLOWED_BATCH_TYPES = ['Dry_Goods', 'Refrigerated', 'Produce', 'Prepared_Meals', 'Baked_Goods', 'Dairy', 'Beverages', 'Other'];
+  if (!ALLOWED_BATCH_TYPES.includes(batch_type)) {
+    return res.status(400).json({ error: 'Invalid batch_type' });
+  }
+
+  if (
+    String(description).trim().length > 1000 ||
+    String(delivery_city).trim().length > 100 ||
+    String(donor_name).trim().length > 255 ||
+    String(pickup_address).trim().length > 255
+  ) {
+    return res.status(400).json({ error: 'One or more fields exceed maximum allowed length' });
+  }
+
+  const parsedWeight = parseFloat(weight_kg);
+  const parsedExpiryHours = parseInt(expiry_hours, 10);
+  if (isNaN(parsedWeight) || parsedWeight <= 0 || parsedWeight > 100000 || isNaN(parsedExpiryHours) || parsedExpiryHours <= 0 || parsedExpiryHours > 720) {
+    return res.status(400).json({ error: 'Weight and expiry hours must be valid positive numbers' });
+  }
+
   try {
     const expiryDate = new Date();
-    expiryDate.setHours(expiryDate.getHours() + parseInt(expiry_hours, 10));
+    expiryDate.setHours(expiryDate.getHours() + parsedExpiryHours);
     const expiryStr = expiryDate.toISOString().slice(0, 19).replace('T', ' ');
 
     const connection = await pool.getConnection();
@@ -129,7 +153,7 @@ const createBatch = async (req, res) => {
     try {
       const [result] = await connection.execute(
         'INSERT INTO Food_Batches (donor_id, description, batch_type, weight_kg, expiry_timestamp, status, delivery_city, donor_name, pickup_address) VALUES (?, ?, ?, ?, ?, \'available\', ?, ?, ?)',
-        [donor_id, description, batch_type, weight_kg, expiryStr, delivery_city.trim(), donor_name.trim(), pickup_address.trim()]
+        [donor_id, description.trim(), batch_type, parsedWeight, expiryStr, delivery_city.trim(), donor_name.trim(), pickup_address.trim()]
       );
 
       await connection.commit();

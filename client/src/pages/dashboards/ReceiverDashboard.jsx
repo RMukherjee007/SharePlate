@@ -6,6 +6,7 @@ export default function ReceiverDashboard() {
   const [batches, setBatches] = useState([]);
   const [myClaims, setMyClaims] = useState([]);
   const [msg, setMsg] = useState('');
+  const [isError, setIsError] = useState(false);
   
   // Claim details state
   const [charityName, setCharityName] = useState(user?.name || '');
@@ -40,17 +41,32 @@ export default function ReceiverDashboard() {
     fetchNearby(activeSearchCity); 
     fetchMyClaims();
 
-    // Short Polling: Fetch every 5 seconds
+    // Real-time SSE updates with Short Polling fallback
+    let eventSource;
+    try {
+      eventSource = new EventSource('/api/stream/inventory');
+      eventSource.onmessage = () => {
+        fetchNearby(activeSearchCity);
+        fetchMyClaims();
+      };
+    } catch (_e) {
+      // Fallback to polling if SSE fails
+    }
+
     const interval = setInterval(() => {
       fetchNearby(activeSearchCity);
       fetchMyClaims();
     }, 5000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      if (eventSource) eventSource.close();
+    };
   }, [activeSearchCity, fetchNearby, fetchMyClaims]);
 
   const requestBatch = async (batchId) => {
     if (!charityName || !charityAddress) {
+      setIsError(true);
       setMsg('Please fill out your Charity Name and Address before requesting a pickup.');
       return;
     }
@@ -60,14 +76,16 @@ export default function ReceiverDashboard() {
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({ batch_id: batchId, charity_name: charityName, charity_address: charityAddress })
     });
-    if (res.status === 401 || res.status === 403) return logout();
+    if (res.status === 401) return logout();
 
     if (res.ok) {
+      setIsError(false);
       setMsg(`Request sent for Batch #${batchId}! Waiting for restaurant approval.`);
       fetchNearby(activeSearchCity);
       fetchMyClaims();
     } else {
       const data = await res.json();
+      setIsError(true);
       setMsg(data.error || 'Failed to request batch.');
     }
   };
@@ -105,7 +123,7 @@ export default function ReceiverDashboard() {
         </form>
       </div>
 
-      {msg && <div className="status-message" style={{marginBottom: '20px'}}>{msg}</div>}
+      {msg && <div className={`status-message${isError ? ' status-error' : ''}`} style={{marginBottom: '20px'}}>{msg}</div>}
 
       <div style={{ display: 'flex', gap: '40px', flexWrap: 'wrap' }}>
         

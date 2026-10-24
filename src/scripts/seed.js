@@ -11,14 +11,15 @@ async function seedDatabase() {
       return;
     }
 
-    // 1. Insert Users with explicit IDs for demo: ID 1 = Restaurant, ID 3 = Charity
+    // 1. Insert Users with explicit IDs for demo: ID 1 = Restaurant, ID 3 = NGO
     console.log('Inserting Users...');
+    const dummyHash = '$2a$10$tZ2E2HjSjH4F.C8Wq1W5M.0M1LgL5O1Y/B.J9f/p2o0k2T7dG.nGi';
     await pool.execute(`
-      INSERT INTO Users (user_id, role, name, address, base_city, latitude, longitude) VALUES
-      (1, 'Restaurant', 'Green Apple Bistro', '123 Apple St, New York, NY', 'New York', 40.730610, -73.935242),
-      (2, 'Restaurant', 'The Daily Loaf', '456 Bread Blvd, New York, NY', 'New York', 40.748817, -73.985428),
-      (3, 'Charity', 'Hope Food Bank', '789 Charity Ln, New York, NY', 'New York', 40.730000, -73.950000)
-    `);
+      INSERT INTO Users (user_id, email, password_hash, role, name, address, base_city, latitude, longitude, is_verified) VALUES
+      (1, 'bistro@example.com', ?, 'Restaurant', 'Green Apple Bistro', '123 Apple St, New York, NY', 'New York', 40.730610, -73.935242, TRUE),
+      (2, 'loaf@example.com', ?, 'Restaurant', 'The Daily Loaf', '456 Bread Blvd, New York, NY', 'New York', 40.748817, -73.985428, TRUE),
+      (3, 'hope@example.com', ?, 'NGO', 'Hope Food Bank', '789 Charity Ln, New York, NY', 'New York', 40.730000, -73.950000, TRUE)
+    `, [dummyHash, dummyHash, dummyHash]);
 
     // 2. Insert Dietary Tags
     console.log('Inserting Dietary Tags...');

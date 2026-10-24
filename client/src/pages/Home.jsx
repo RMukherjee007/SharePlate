@@ -61,7 +61,9 @@ function Home() {
         setReviewStatus('Review submitted successfully!');
         setReviewForm({ rating: 5, comments: '' });
         // Refresh reviews
-        fetch('/api/reviews').then(res => res.json()).then(data => setReviews(data));
+        fetch('/api/reviews').then(res => res.json()).then(data => {
+          if (Array.isArray(data)) setReviews(data);
+        });
       } else {
         const data = await response.json();
         setReviewStatus(data.error || 'Failed to submit review.');
@@ -81,7 +83,7 @@ function Home() {
         You are currently logged in as a {user.role === 'NGO' ? 'Charity/NGO' : user.role}.
       </p>
       <button 
-        onClick={() => navigate(user.role === 'Restaurant' ? '/donor' : user.role === 'NGO' ? '/receiver' : '/admin')} 
+        onClick={() => navigate(user.role === 'Restaurant' ? '/donor' : (user.role === 'NGO' || user.role === 'Charity') ? '/receiver' : '/admin')} 
         className="btn-dark"
         style={{ width: '100%', padding: '15px' }}
       >
@@ -173,7 +175,7 @@ function Home() {
               <p>We provide a streamlined platform for charities and NGOs to instantly see what surplus food is available from nearby mess halls and restaurants, allowing for quick pickups.</p>
             </div>
           </div>
-          <div className="feature-image" style={{ backgroundImage: "url('/ngo.png')" }}></div>
+          <div className="feature-image" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1593113598332-cd288d649433?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')" }}></div>
         </div>
 
         <div className="feature-card">

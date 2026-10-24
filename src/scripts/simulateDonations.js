@@ -14,11 +14,12 @@ async function simulateDonations() {
   console.log(`Starting Data Simulation: Generating ${TOTAL_RECORDS} records over the last ${DAYS_BACK} days...`);
 
   try {
-    // 1. Ensure we have at least one restaurant (donor_id) and one charity (charity_id)
-    await pool.execute(`INSERT IGNORE INTO Users (user_id, role, name, address, base_city, latitude, longitude) VALUES 
-      (998, 'Restaurant', 'Simulated Donor', '123 Fake St', 'New York', 40.7, -74.0),
-      (999, 'Charity', 'Simulated Charity', '456 Fake Ave', 'New York', 40.7, -74.0)
-    `);
+    // 1. Ensure we have at least one restaurant (donor_id) and one NGO (charity_id)
+    const dummyHash = '$2a$10$tZ2E2HjSjH4F.C8Wq1W5M.0M1LgL5O1Y/B.J9f/p2o0k2T7dG.nGi';
+    await pool.execute(`INSERT IGNORE INTO Users (user_id, email, password_hash, role, name, address, base_city, latitude, longitude, is_verified) VALUES 
+      (998, 'simdonor@example.com', ?, 'Restaurant', 'Simulated Donor', '123 Fake St', 'New York', 40.7, -74.0, TRUE),
+      (999, 'simngo@example.com', ?, 'NGO', 'Simulated Charity', '456 Fake Ave', 'New York', 40.7, -74.0, TRUE)
+    `, [dummyHash, dummyHash]);
 
     let batchesValues = [];
     let claimsValues = [];

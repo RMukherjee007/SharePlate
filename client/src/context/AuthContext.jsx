@@ -3,20 +3,28 @@ import { createContext, useState, useEffect, useContext } from 'react';
 
 const AuthContext = createContext();
 
+const parseJwtPayload = (jwtToken) => {
+  const base64Url = jwtToken.split('.')[1];
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+  }).join(''));
+  const payload = JSON.parse(jsonPayload);
+  if (payload.exp && payload.exp * 1000 < Date.now()) {
+    throw new Error('Token expired');
+  }
+  return payload;
+};
+
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('token') || null);
   const [user, setUser] = useState(() => {
     const savedToken = localStorage.getItem('token');
     if (savedToken) {
       try {
-        const base64Url = savedToken.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        // Handle utf-8 properly to avoid issues with special characters
-        const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
-        return JSON.parse(jsonPayload);
-      } catch (e) {
+        return parseJwtPayload(savedToken);
+      } catch (_e) {
+        localStorage.removeItem('token');
         return null;
       }
     }
@@ -32,12 +40,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     if (token) {
       try {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
-        const payload = JSON.parse(jsonPayload);
+        const payload = parseJwtPayload(token);
         setUser(payload);
         localStorage.setItem('token', token);
       } catch (_e) {

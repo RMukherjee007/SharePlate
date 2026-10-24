@@ -1,6 +1,8 @@
 CREATE TABLE Users (
   user_id INT AUTO_INCREMENT PRIMARY KEY,
-  role VARCHAR(50) NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  role ENUM('NGO', 'Restaurant', 'Admin') NOT NULL,
   name VARCHAR(255) NOT NULL,
   address VARCHAR(255),
   base_city VARCHAR(100),

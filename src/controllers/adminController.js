@@ -7,7 +7,7 @@ const getSystemOverview = async (req, res) => {
     const [claims] = await pool.execute('SELECT COUNT(*) as total FROM Claims');
     
     // Get all users for admin table
-    const [allUsers] = await pool.execute('SELECT user_id, role, name, address, is_verified FROM Users ORDER BY role');
+    const [allUsers] = await pool.execute('SELECT user_id, email, role, name, address, is_verified FROM Users ORDER BY role');
 
     res.status(200).json({
       metrics: {

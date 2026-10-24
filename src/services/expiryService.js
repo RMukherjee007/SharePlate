@@ -33,22 +33,26 @@ const startExpiryDetection = () => {
           );
 
           // Find unique cities for cache invalidation
-          const uniqueCities = [...new Set(expiredBatches.map(b => b.delivery_city))];
+          const uniqueCities = [...new Set(expiredBatches.map(b => (b.delivery_city || '').trim()).filter(Boolean))];
 
           // Invalidate cache and publish events
-          await redisClient.del('batches:all');
-          for (const city of uniqueCities) {
-            const cacheKey = `batches:${city.trim().toLowerCase()}`;
-            await redisClient.del(cacheKey);
-          }
+          try {
+            await redisClient.del('batches:all');
+            for (const city of uniqueCities) {
+              const cacheKey = `batches:${city.toLowerCase()}`;
+              await redisClient.del(cacheKey);
+            }
 
-          // Publish EXPIRED event to SSE clients via Redis Pub/Sub
-          for (const batch of expiredBatches) {
-            await redisClient.publish('inventory_updates', JSON.stringify({
-              type: 'BATCH_EXPIRED',
-              city: batch.delivery_city.trim(),
-              batch_id: batch.batch_id
-            }));
+            // Publish EXPIRED event to SSE clients via Redis Pub/Sub
+            for (const batch of expiredBatches) {
+              await redisClient.publish('inventory_updates', JSON.stringify({
+                type: 'BATCH_EXPIRED',
+                city: (batch.delivery_city || '').trim(),
+                batch_id: batch.batch_id
+              }));
+            }
+          } catch (redisErr) {
+            console.warn('⚠️ Redis cache invalidation/publish failed during expiry check:', redisErr.message);
           }
 
           console.log('✅ Expiry processing complete. Caches invalidated and events published.');

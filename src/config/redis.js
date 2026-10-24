@@ -14,7 +14,7 @@ subscriber.on('error', (err) => console.error('Redis Subscriber Error', err));
 subscriber.on('connect', () => console.log('Connected to Redis (Subscriber)'));
 
 // Self-invoking async function to connect both clients
-(async () => {
+const redisConnectionPromise = (async () => {
   try {
     await client.connect();
     await subscriber.connect();
@@ -23,4 +23,4 @@ subscriber.on('connect', () => console.log('Connected to Redis (Subscriber)'));
   }
 })();
 
-module.exports = { redisClient: client, redisSubscriber: subscriber };
+module.exports = { redisClient: client, redisSubscriber: subscriber, redisConnectionPromise };

@@ -7,6 +7,7 @@ export default function DonorDashboard() {
   const [pendingRequests, setPendingRequests] = useState([]);
   const [form, setForm] = useState({ description: '', batch_type: 'Dry_Goods', weight_kg: '', expiry_hours: '24', delivery_city: '', donor_name: user?.name || '', pickup_address: user?.address || '' });
   const [msg, setMsg] = useState('');
+  const [isError, setIsError] = useState(false);
 
   const fetchBatches = useCallback(async () => {
     const res = await fetch('/api/batches/me', {
@@ -32,13 +33,27 @@ export default function DonorDashboard() {
     fetchBatches(); 
     fetchPendingRequests();
 
-    // Short Polling
+    // Real-time SSE updates with Short Polling fallback
+    let eventSource;
+    try {
+      eventSource = new EventSource('/api/stream/inventory');
+      eventSource.onmessage = () => {
+        fetchBatches();
+        fetchPendingRequests();
+      };
+    } catch (_e) {
+      // Fallback to polling if SSE fails
+    }
+
     const interval = setInterval(() => {
       fetchBatches(); 
       fetchPendingRequests();
     }, 5000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      if (eventSource) eventSource.close();
+    };
   }, [fetchBatches, fetchPendingRequests]);
 
   const handleSubmit = async (e) => {
@@ -50,6 +65,7 @@ export default function DonorDashboard() {
       body: JSON.stringify(form)
     });
     if (res.ok) {
+      setIsError(false);
       setMsg('Batch posted successfully!');
       setForm(prev => ({ 
         ...prev, 
@@ -61,6 +77,7 @@ export default function DonorDashboard() {
       }));
       fetchBatches();
     } else {
+      setIsError(true);
       setMsg('Failed to post batch.');
     }
   };
@@ -108,7 +125,7 @@ export default function DonorDashboard() {
               <option value="Beverages">Beverages</option>
               <option value="Other">Other</option>
             </select>
-            <input type="number" className="input-field" placeholder="Weight (kg)" value={form.weight_kg} onChange={e => setForm({...form, weight_kg: e.target.value})} required />
+            <input type="number" min="0.1" step="any" className="input-field" placeholder="Weight (kg)" value={form.weight_kg} onChange={e => setForm({...form, weight_kg: e.target.value})} required />
             <select className="input-field" value={form.expiry_hours} onChange={e => setForm({...form, expiry_hours: e.target.value})}>
               <option value="12">Expires in 12 Hours</option>
               <option value="24">Expires in 24 Hours</option>
@@ -117,7 +134,7 @@ export default function DonorDashboard() {
             <input type="text" className="input-field" placeholder="Delivery City (e.g. Chicago)" value={form.delivery_city} onChange={e => setForm({...form, delivery_city: e.target.value})} required />
             
             <button type="submit" className="btn-dark">Post Batch</button>
-            {msg && <div className="status-message">{msg}</div>}
+            {msg && <div className={`status-message${isError ? ' status-error' : ''}`}>{msg}</div>}
           </form>
         </div>
 
