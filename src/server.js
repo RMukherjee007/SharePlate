@@ -7,7 +7,6 @@ require('dotenv').config();
 const { globalLimiter } = require('./middleware/rateLimiter');
 const batchRoutes = require('./routes/batchRoutes');
 const claimRoutes = require('./routes/claimRoutes');
-const sampleRoutes = require('./routes/sampleRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
@@ -45,7 +44,6 @@ app.use('/api', globalLimiter);
 // Routes
 app.use('/api/batches', batchRoutes);
 app.use('/api/claims', claimRoutes);
-app.use('/api/sample', sampleRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);

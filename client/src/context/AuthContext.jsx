@@ -43,6 +43,18 @@ export const AuthProvider = ({ children }) => {
         const payload = parseJwtPayload(token);
         setUser(payload);
         localStorage.setItem('token', token);
+
+        // Sync live profile (e.g., is_verified status after admin approval, address, base_city)
+        fetch('/api/auth/me', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+          .then(res => res.ok ? res.json() : null)
+          .then(data => {
+            if (data && data.user) {
+              setUser(prev => prev ? { ...prev, ...data.user } : data.user);
+            }
+          })
+          .catch(() => {});
       } catch (_e) {
         logout();
       }

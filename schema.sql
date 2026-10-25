@@ -31,6 +31,8 @@ CREATE TABLE Food_Batches (
   longitude DECIMAL(10, 6),
   dietary_tags VARCHAR(255),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_status (status),
+  INDEX idx_delivery_city (delivery_city),
   FOREIGN KEY (donor_id) REFERENCES Users(user_id)
 );
 

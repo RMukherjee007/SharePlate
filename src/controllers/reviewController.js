@@ -1,5 +1,7 @@
 const pool = require('../config/db');
 const { redisClient } = require('../config/redis');
+const jwt = require('jsonwebtoken');
+const { JWT_SECRET } = require('./authController');
 
 /**
  * Fetch recent reviews to display in the UI.
@@ -60,19 +62,31 @@ const createReview = async (req, res) => {
   }
 
   try {
-    // 1. Fetch a dummy claim and reviewer ID since we don't have auth right now
-    const [claims] = await pool.execute('SELECT claim_id, charity_id FROM Claims LIMIT 1');
+    // 1. Check if user is authenticated via Bearer token so we attribute the review to them
+    let authUserId = null;
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] });
+        if (decoded && decoded.user_id) authUserId = decoded.user_id;
+      } catch (_e) {
+        // Ignore invalid token for optional-auth public review endpoint
+      }
+    }
+
+    const [claims] = await pool.execute('SELECT claim_id, charity_id FROM Claims ORDER BY claim_id DESC LIMIT 1');
     if (claims.length === 0) {
       return res.status(400).json({ error: 'No claims exist yet. Please claim a batch first so we can attach the review to it!' });
     }
 
-    const dummyClaimId = claims[0].claim_id;
-    const dummyReviewerId = claims[0].charity_id;
+    const claimId = claims[0].claim_id;
+    const reviewerId = authUserId || claims[0].charity_id;
 
     // 2. Insert the review
     const [result] = await pool.execute(
       'INSERT INTO Feedback_Reviews (claim_id, reviewer_id, rating, comments) VALUES (?, ?, ?, ?)',
-      [dummyClaimId, dummyReviewerId, numericRating, sanitizedComments]
+      [claimId, reviewerId, numericRating, sanitizedComments]
     );
 
     // 3. Invalidate the reviews cache so new review shows up instantly

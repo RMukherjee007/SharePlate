@@ -6,7 +6,7 @@ function Home() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
-  const { user, login } = useAuth();
+  const { user, token, login } = useAuth();
   const navigate = useNavigate();
   
   const [reviews, setReviews] = useState([]);
@@ -52,9 +52,11 @@ function Home() {
     e.preventDefault();
     setReviewStatus('Submitting...');
     try {
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
       const response = await fetch('/api/reviews', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify(reviewForm)
       });
       if (response.ok) {
@@ -247,7 +249,7 @@ function Home() {
             fontWeight: 'bold',
             boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
           }}>
-            🌍 Rescued {globalStats.totalKg} kg of food across {globalStats.totalTransactions} donations!
+            Rescued {globalStats.totalKg} kg of food across {globalStats.totalTransactions} donations!
           </div>
         </div>
       </section>

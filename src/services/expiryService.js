@@ -1,7 +1,7 @@
 const cron = require('node-cron');
 const pool = require('../config/db');
 const { redisClient } = require('../config/redis');
-const { predictSpoilageRisk, trainAndEvaluateSpoilageModel } = require('./spoilageModelService');
+const { predictSpoilageRisk } = require('./spoilageModelService');
 
 /**
  * Service to automatically expire food batches that have passed their expiry_timestamp
@@ -9,10 +9,7 @@ const { predictSpoilageRisk, trainAndEvaluateSpoilageModel } = require('./spoila
  * Runs every 5 minutes by default.
  */
 const startExpiryDetection = () => {
-  console.log('⏳ Starting Food Expiry & ML Spoilage Escalation Service (Runs every 5 minutes)...');
-
-  // Initial model calibration on startup
-  trainAndEvaluateSpoilageModel().catch(err => console.warn('Initial ML calibration skipped:', err.message));
+  console.log('⏳ Starting Food Expiry & Spoilage Escalation Service (Runs every 5 minutes)...');
 
   cron.schedule('*/5 * * * *', async () => {
     try {

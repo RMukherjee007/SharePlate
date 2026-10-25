@@ -51,16 +51,16 @@ export default function AdminDashboard() {
     <div className="page-padding">
       <h2 className="features-header" style={{ color: 'var(--color-dark-brown)' }}>Admin Control Panel</h2>
       
-      <div style={{ display: 'flex', gap: '20px', marginBottom: '60px' }}>
-        <div style={{ flex: 1, padding: '30px', backgroundColor: 'var(--color-dark-brown)', color: 'var(--color-text-light)' }}>
+      <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '60px' }}>
+        <div style={{ flex: '1 1 200px', padding: '30px', backgroundColor: 'var(--color-dark-brown)', color: 'var(--color-text-light)' }}>
           <h3>Total Users</h3>
           <p style={{ fontSize: '3rem' }}>{data.metrics.totalUsers || 0}</p>
         </div>
-        <div style={{ flex: 1, padding: '30px', backgroundColor: 'var(--color-dark-brown)', color: 'var(--color-text-light)' }}>
+        <div style={{ flex: '1 1 200px', padding: '30px', backgroundColor: 'var(--color-dark-brown)', color: 'var(--color-text-light)' }}>
           <h3>Total Food Batches</h3>
           <p style={{ fontSize: '3rem' }}>{data.metrics.totalBatches || 0}</p>
         </div>
-        <div style={{ flex: 1, padding: '30px', backgroundColor: 'var(--color-dark-brown)', color: 'var(--color-text-light)' }}>
+        <div style={{ flex: '1 1 200px', padding: '30px', backgroundColor: 'var(--color-dark-brown)', color: 'var(--color-text-light)' }}>
           <h3>Successful Claims</h3>
           <p style={{ fontSize: '3rem' }}>{data.metrics.totalClaims || 0}</p>
         </div>
@@ -118,7 +118,19 @@ export default function AdminDashboard() {
               <td style={{ padding: '10px' }}>{u.name}</td>
               <td style={{ padding: '10px' }}>{u.address || u.email || '-'}</td>
               <td style={{ padding: '10px' }}>
-                {u.role === 'NGO' ? (u.is_verified ? '✅ Yes' : '❌ Pending') : '-'}
+                {u.role === 'NGO' ? (
+                  <span style={{
+                    display: 'inline-block',
+                    padding: '3px 10px',
+                    borderRadius: '12px',
+                    fontSize: '0.82rem',
+                    fontWeight: 'bold',
+                    backgroundColor: u.is_verified ? '#dcfce7' : '#fef2f2',
+                    color: u.is_verified ? '#166534' : '#991b1b'
+                  }}>
+                    {u.is_verified ? 'Verified' : 'Pending'}
+                  </span>
+                ) : '-'}
               </td>
             </tr>
           ))}

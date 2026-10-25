@@ -38,11 +38,15 @@ const requestBatch = async (req, res) => {
       );
 
       if (batches.length === 0) {
-        throw new Error('Food batch not found');
+        const err = new Error('Food batch not found');
+        err.status = 404;
+        throw err;
       }
 
       if (batches[0].status !== 'available' || batches[0].is_expired) {
-        throw new Error('This batch is no longer available for requests');
+        const err = new Error('This batch is no longer available for requests');
+        err.status = 409;
+        throw err;
       }
 
       // 2. Set batch status to 'locked'
@@ -90,7 +94,7 @@ const requestBatch = async (req, res) => {
     }
   } catch (error) {
     console.error('Request Error:', error);
-    res.status(500).json({ error: error.message || 'Failed to request food batch' });
+    res.status(error.status || 500).json({ error: error.message || 'Failed to request food batch' });
   }
 };
 
@@ -139,7 +143,9 @@ const acceptClaim = async (req, res) => {
       );
 
       if (claims.length === 0) {
-        throw new Error('Valid pending request not found');
+        const err = new Error('Valid pending request not found');
+        err.status = 404;
+        throw err;
       }
 
       const batch_id = claims[0].batch_id;
@@ -188,7 +194,7 @@ const acceptClaim = async (req, res) => {
     }
   } catch (error) {
     console.error('Accept Claim Error:', error);
-    res.status(500).json({ error: error.message || 'Failed to accept claim' });
+    res.status(error.status || 500).json({ error: error.message || 'Failed to accept claim' });
   }
 };
 

@@ -18,8 +18,9 @@ async function seedDatabase() {
       INSERT INTO Users (user_id, email, password_hash, role, name, address, base_city, latitude, longitude, is_verified) VALUES
       (1, 'bistro@example.com', ?, 'Restaurant', 'Green Apple Bistro', '123 Apple St, New York, NY', 'New York', 40.730610, -73.935242, TRUE),
       (2, 'loaf@example.com', ?, 'Restaurant', 'The Daily Loaf', '456 Bread Blvd, New York, NY', 'New York', 40.748817, -73.985428, TRUE),
-      (3, 'hope@example.com', ?, 'NGO', 'Hope Food Bank', '789 Charity Ln, New York, NY', 'New York', 40.730000, -73.950000, TRUE)
-    `, [dummyHash, dummyHash, dummyHash]);
+      (3, 'hope@example.com', ?, 'NGO', 'Hope Food Bank', '789 Charity Ln, New York, NY', 'New York', 40.730000, -73.950000, TRUE),
+      (4, 'admin@shareplate.org', ?, 'Admin', 'SharePlate Admin', '892 Unity Avenue, Chicago, IL', 'Chicago', 41.878113, -87.629799, TRUE)
+    `, [dummyHash, dummyHash, dummyHash, dummyHash]);
 
     // 2. Insert Dietary Tags
     console.log('Inserting Dietary Tags...');

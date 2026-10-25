@@ -314,15 +314,13 @@ const optimizeRouteHandler = async (req, res) => {
  * Neural Network Vision & Culinary NLP Auto-Tagger for Food Donations
  */
 const analyzeFoodHandler = async (req, res) => {
-  const { notes, fileName, imageDataUrl, visualProfile, cnnDetections, mobilenetPredictions } = req.body || {};
+  const { notes, fileName, imageDataUrl, visualProfile } = req.body || {};
   try {
     const analysis = await analyzeFoodDonation({
       notes,
       fileName,
       imageDataUrl,
-      visualProfile,
-      cnnDetections,
-      mobilenetPredictions
+      visualProfile
     });
     res.status(200).json(analysis);
   } catch (error) {

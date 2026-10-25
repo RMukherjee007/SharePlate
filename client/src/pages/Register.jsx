@@ -7,6 +7,8 @@ function Register() {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [role, setRole] = useState('Restaurant');
+  const [address, setAddress] = useState('');
+  const [baseCity, setBaseCity] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   
@@ -22,7 +24,7 @@ function Register() {
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, name, role })
+        body: JSON.stringify({ email, password, name, role, address, base_city: baseCity })
       });
 
       const data = await res.json();
@@ -83,6 +85,26 @@ function Register() {
               required 
               style={{ marginBottom: '10px' }}
             />
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '10px', marginBottom: '10px' }}>
+              <input 
+                type="text" 
+                className="input-field" 
+                placeholder="Street Address (e.g. 100 MG Road)" 
+                value={address} 
+                onChange={(e) => setAddress(e.target.value)} 
+                required 
+                style={{ marginBottom: 0 }}
+              />
+              <input 
+                type="text" 
+                className="input-field" 
+                placeholder="City (e.g. Bangalore)" 
+                value={baseCity} 
+                onChange={(e) => setBaseCity(e.target.value)} 
+                required 
+                style={{ marginBottom: 0 }}
+              />
+            </div>
             <select
               className="input-field"
               value={role}

@@ -4,11 +4,10 @@ import { useAuth } from '../../context/AuthContext';
 const DIETARY_OPTIONS = ['Vegan', 'Gluten-Free', 'Halal', 'Dairy-Free', 'Nut-Free'];
 
 /**
- * Resizes image to a compact JPEG data URL for fast transmission to the vision model
- * and extracts color/spatial statistics + connected-component regions.
+ * Resizes image to a compact 320px JPEG data URL for fast transmission to the vision model
+ * and extracts basic color/brightness statistics.
  */
 function processUploadedFoodImage(img) {
-  // 1. Create compact 320px JPEG for server-side Food-101 & Google ViT inference
   const maxDim = 320;
   const scale = Math.min(1, maxDim / Math.max(img.naturalWidth || 320, img.naturalHeight || 320));
   const outW = Math.max(64, Math.round((img.naturalWidth || 320) * scale));
@@ -21,9 +20,8 @@ function processUploadedFoodImage(img) {
   exportCtx.drawImage(img, 0, 0, outW, outH);
   const compressedDataUrl = exportCanvas.toDataURL('image/jpeg', 0.85);
 
-  // 2. Extract visual profile & connected-component regions on 96x96 grid
-  const W = 96;
-  const H = 96;
+  const W = 64;
+  const H = 64;
   const canvas = document.createElement('canvas');
   canvas.width = W;
   canvas.height = H;
@@ -32,42 +30,14 @@ function processUploadedFoodImage(img) {
   const { data: pixels } = ctx.getImageData(0, 0, W, H);
   const totalPx = W * H;
 
-  let greenCount = 0;
-  let warmCount = 0;
-  let goldenCount = 0;
-  let whiteCount = 0;
-  let redOrangeCount = 0;
-  let darkBrownCount = 0;
-  let sumBrightness = 0;
-  let sumSaturation = 0;
-  const fgMask = new Uint8Array(totalPx);
-
-  let bgR = 0, bgG = 0, bgB = 0, borderCnt = 0;
-  for (let y = 0; y < H; y++) {
-    for (let x = 0; x < W; x++) {
-      if (x < 4 || x >= W - 4 || y < 4 || y >= H - 4) {
-        const idx = (y * W + x) * 4;
-        bgR += pixels[idx];
-        bgG += pixels[idx + 1];
-        bgB += pixels[idx + 2];
-        borderCnt++;
-      }
-    }
-  }
-  bgR /= borderCnt || 1;
-  bgG /= borderCnt || 1;
-  bgB /= borderCnt || 1;
+  let greenCount = 0, warmCount = 0, goldenCount = 0, whiteCount = 0, redOrangeCount = 0, darkBrownCount = 0;
+  let sumBrightness = 0, sumSaturation = 0;
 
   for (let p = 0; p < totalPx; p++) {
     const idx = p * 4;
-    const r = pixels[idx];
-    const g = pixels[idx + 1];
-    const b = pixels[idx + 2];
-
-    const maxC = Math.max(r, g, b);
-    const minC = Math.min(r, g, b);
-    const delta = maxC - minC;
-    const sat = maxC === 0 ? 0 : delta / maxC;
+    const r = pixels[idx], g = pixels[idx + 1], b = pixels[idx + 2];
+    const maxC = Math.max(r, g, b), minC = Math.min(r, g, b);
+    const sat = maxC === 0 ? 0 : (maxC - minC) / maxC;
     const bright = (r + g + b) / (3 * 255);
 
     sumBrightness += bright * 255;
@@ -79,89 +49,6 @@ function processUploadedFoodImage(img) {
     if (bright > 0.72 && sat < 0.22) whiteCount++;
     if (r > g * 1.22 && r > b * 1.35 && sat > 0.25) redOrangeCount++;
     if (bright < 0.35 && r > b && g >= b * 0.9) darkBrownCount++;
-
-    const colorDist = Math.sqrt(
-      Math.pow(r - bgR, 2) + Math.pow(g - bgG, 2) + Math.pow(b - bgB, 2)
-    );
-    if (colorDist > 38 || sat > 0.28) {
-      fgMask[p] = 1;
-    }
-  }
-
-  const GW = 24;
-  const GH = 24;
-  const cellW = W / GW;
-  const cellH = H / GH;
-  const grid = new Uint8Array(GW * GH);
-
-  for (let gy = 0; gy < GH; gy++) {
-    for (let gx = 0; gx < GW; gx++) {
-      let active = 0;
-      for (let dy = 0; dy < cellH; dy++) {
-        for (let dx = 0; dx < cellW; dx++) {
-          const px = Math.floor(gx * cellW + dx);
-          const py = Math.floor(gy * cellH + dy);
-          if (fgMask[py * W + px]) active++;
-        }
-      }
-      if (active >= (cellW * cellH) * 0.45) {
-        grid[gy * GW + gx] = 1;
-      }
-    }
-  }
-
-  const visited = new Uint8Array(GW * GH);
-  const boundingBoxes = [];
-
-  for (let gy = 1; gy < GH - 1; gy++) {
-    for (let gx = 1; gx < GW - 1; gx++) {
-      const startIdx = gy * GW + gx;
-      if (grid[startIdx] && !visited[startIdx]) {
-        const queue = [startIdx];
-        visited[startIdx] = 1;
-        let minX = gx, maxX = gx, minY = gy, maxY = gy, cells = 0;
-
-        while (queue.length > 0) {
-          const curr = queue.shift();
-          const cy = Math.floor(curr / GW);
-          const cx = curr % GW;
-          cells++;
-          if (cx < minX) minX = cx;
-          if (cx > maxX) maxX = cx;
-          if (cy < minY) minY = cy;
-          if (cy > maxY) maxY = cy;
-
-          const neighbors = [
-            [cx - 1, cy],
-            [cx + 1, cy],
-            [cx, cy - 1],
-            [cx, cy + 1]
-          ];
-          for (const [nx, ny] of neighbors) {
-            if (nx >= 0 && nx < GW && ny >= 0 && ny < GH) {
-              const nIdx = ny * GW + nx;
-              if (grid[nIdx] && !visited[nIdx]) {
-                visited[nIdx] = 1;
-                queue.push(nIdx);
-              }
-            }
-          }
-        }
-
-        if (cells >= 3 && cells <= GW * GH * 0.75) {
-          boundingBoxes.push({
-            x: minX / GW,
-            y: minY / GH,
-            w: (maxX - minX + 1) / GW,
-            h: (maxY - minY + 1) / GH
-          });
-        }
-      }
-    }
-  }
-
-  if (boundingBoxes.length === 0) {
-    boundingBoxes.push({ x: 0.12, y: 0.12, w: 0.76, h: 0.76 });
   }
 
   const visualProfile = {
@@ -173,10 +60,10 @@ function processUploadedFoodImage(img) {
     darkBrownRatio: Number((darkBrownCount / totalPx).toFixed(3)),
     brightness: Math.round(sumBrightness / totalPx),
     saturation: Number((sumSaturation / totalPx).toFixed(3)),
-    objectCount: Math.max(1, Math.min(25, boundingBoxes.length))
+    objectCount: 1
   };
 
-  return { compressedDataUrl, visualProfile, boundingBoxes };
+  return { compressedDataUrl, visualProfile, boundingBoxes: [{ x: 0.12, y: 0.12, w: 0.76, h: 0.76 }] };
 }
 
 export default function DonorDashboard() {
@@ -188,7 +75,7 @@ export default function DonorDashboard() {
     batch_type: 'Dry_Goods',
     weight_kg: '',
     expiry_hours: '24',
-    delivery_city: '',
+    delivery_city: user?.base_city || '',
     donor_name: user?.name || '',
     pickup_address: user?.address || '',
     latitude: '',
@@ -197,6 +84,18 @@ export default function DonorDashboard() {
   });
   const [msg, setMsg] = useState('');
   const [isError, setIsError] = useState(false);
+
+  // Sync user address/city when profile finishes loading
+  useEffect(() => {
+    if (user) {
+      setForm(prev => ({
+        ...prev,
+        donor_name: prev.donor_name || user.name || '',
+        pickup_address: prev.pickup_address || user.address || '',
+        delivery_city: prev.delivery_city || user.base_city || ''
+      }));
+    }
+  }, [user]);
 
   // Smart Food Auto-Tagger & Shelf-Life Estimator state
   const [aiNotes, setAiNotes] = useState('');
@@ -440,7 +339,7 @@ export default function DonorDashboard() {
         batch_type: 'Dry_Goods',
         weight_kg: '',
         expiry_hours: '24',
-        delivery_city: '',
+        delivery_city: user?.base_city || prev.delivery_city || '',
         dietary_tags: []
       }));
       setAiResult(null);

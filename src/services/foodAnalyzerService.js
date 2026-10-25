@@ -119,6 +119,12 @@ const FOOD_ITEM_CATALOG = [
   { name: 'Vanilla Cake', aliases: ['vanilla cake', 'sponge cake', 'white cake', 'birthday cake', 'buttercream cake', 'cream cake'], category: 'Baked_Goods', baseShelfHours: 24, expiryOption: '24', tags: ['Nut-Free'] },
   { name: 'Chocolate Cake', aliases: ['chocolate cake', 'fudge cake', 'brownie', 'brownies'], category: 'Baked_Goods', baseShelfHours: 24, expiryOption: '24', tags: ['Nut-Free'] },
   { name: 'Cake / Bakery Cake', aliases: ['cake', 'cakes', 'cupcake', 'cupcakes', 'cheesecake', 'shortcake', 'pastry cake', 'trifle'], category: 'Baked_Goods', baseShelfHours: 24, expiryOption: '24', tags: ['Nut-Free'] },
+  { name: 'Bread Loaves & Rolls', aliases: ['bread', 'loaf', 'loaves', 'french loaf', 'sourdough', 'baguette', 'rolls', 'bun', 'buns', 'toast', 'dough', 'bagel', 'pretzel'], category: 'Baked_Goods', baseShelfHours: 24, expiryOption: '24', tags: ['Vegan', 'Dairy-Free', 'Nut-Free'] },
+  { name: 'Bakery Pastries & Donuts', aliases: ['donut', 'donuts', 'doughnut', 'pastry', 'pastries', 'croissant', 'muffin', 'muffins', 'cookie', 'cookies', 'bakery', 'bakeshop', 'bakehouse', 'waffle', 'pancake'], category: 'Baked_Goods', baseShelfHours: 24, expiryOption: '24', tags: ['Nut-Free'] },
+  { name: 'Sandwiches & Wraps', aliases: ['sandwich', 'sandwiches', 'sub', 'wrap', 'wraps', 'panini', 'burger', 'cheeseburger', 'hot dog', 'hotdog'], category: 'Prepared_Meals', baseShelfHours: 12, expiryOption: '12', tags: ['Nut-Free'] },
+  { name: 'Pizza', aliases: ['pizza', 'pizzas', 'flatbread'], category: 'Prepared_Meals', baseShelfHours: 12, expiryOption: '12', tags: ['Nut-Free'] },
+  { name: 'Dry Pantry Staples & Grains', aliases: ['sack', 'sacks', 'basmati', 'raw rice', 'uncooked rice', 'canned', 'can', 'cans', 'lentils', 'beans', 'chickpeas', 'flour', 'oats', 'cereal', 'grains', 'dry goods', 'dry', 'non-perishable', 'crackers', 'packaged', 'pasta box'], category: 'Dry_Goods', baseShelfHours: 48, expiryOption: '48', tags: ['Vegan', 'Dairy-Free', 'Nut-Free'] },
+  { name: 'Prepared Meals & Cooked Dishes', aliases: ['cooked rice', 'fried rice', 'biryani', 'pulao', 'pilaf', 'curry', 'dal', 'sambar', 'stew', 'soup', 'consomme', 'hot pot', 'noodles', 'pasta', 'carbonara', 'spaghetti', 'lasagna', 'risotto', 'gnocchi', 'burrito', 'taco', 'tacos', 'mashed potato', 'meat loaf', 'potpie', 'paneer', 'chicken', 'samosa', 'dumplings', 'momos', 'meal', 'meals', 'catering', 'buffet', 'guacamole', 'rice'], category: 'Prepared_Meals', baseShelfHours: 12, expiryOption: '12', tags: ['Nut-Free'] },
   { name: 'Fresh Apples', aliases: ['apple', 'apples', 'granny smith', 'pomegranate', 'fig', 'pear'], category: 'Produce', baseShelfHours: 48, expiryOption: '48', tags: ['Vegan', 'Gluten-Free', 'Dairy-Free', 'Nut-Free'] },
   { name: 'Fresh Bananas', aliases: ['banana', 'bananas', 'plantain'], category: 'Produce', baseShelfHours: 24, expiryOption: '24', tags: ['Vegan', 'Gluten-Free', 'Dairy-Free', 'Nut-Free'] },
   { name: 'Oranges / Citrus Fruit', aliases: ['orange', 'oranges', 'lemon', 'lemons', 'lime', 'citrus', 'pineapple', 'jackfruit', 'custard apple'], category: 'Produce', baseShelfHours: 48, expiryOption: '48', tags: ['Vegan', 'Gluten-Free', 'Dairy-Free', 'Nut-Free'] },
@@ -126,15 +132,10 @@ const FOOD_ITEM_CATALOG = [
   { name: 'Broccoli & Fresh Greens', aliases: ['broccoli', 'cauliflower', 'head cabbage', 'cabbage', 'artichoke', 'brussels sprout'], category: 'Produce', baseShelfHours: 24, expiryOption: '24', tags: ['Vegan', 'Gluten-Free', 'Dairy-Free', 'Nut-Free'] },
   { name: 'Carrots & Root Vegetables', aliases: ['carrot', 'carrots', 'potato', 'potatoes', 'onion', 'onions', 'turnip', 'radish', 'sweet potato'], category: 'Produce', baseShelfHours: 48, expiryOption: '48', tags: ['Vegan', 'Gluten-Free', 'Dairy-Free', 'Nut-Free'] },
   { name: 'Fresh Garden Salad / Vegetables', aliases: ['salad', 'lettuce', 'spinach', 'greens', 'cucumber', 'zucchini', 'squash', 'acorn squash', 'butternut squash', 'spaghetti squash', 'bell pepper', 'pepper', 'tomato', 'tomatoes', 'mushroom', 'vegetable', 'vegetables', 'produce', 'corn', 'ear, spike, capitulum', 'cardoon'], category: 'Produce', baseShelfHours: 24, expiryOption: '24', tags: ['Vegan', 'Gluten-Free', 'Dairy-Free', 'Nut-Free'] },
-  { name: 'Bread Loaves & Rolls', aliases: ['bread', 'loaf', 'loaves', 'french loaf', 'sourdough', 'baguette', 'rolls', 'bun', 'buns', 'toast', 'dough', 'bagel', 'pretzel'], category: 'Baked_Goods', baseShelfHours: 24, expiryOption: '24', tags: ['Vegan', 'Dairy-Free', 'Nut-Free'] },
-  { name: 'Bakery Pastries & Donuts', aliases: ['donut', 'donuts', 'doughnut', 'pastry', 'pastries', 'croissant', 'muffin', 'muffins', 'cookie', 'cookies', 'bakery', 'bakeshop', 'bakehouse', 'waffle', 'pancake'], category: 'Baked_Goods', baseShelfHours: 24, expiryOption: '24', tags: ['Nut-Free'] },
-  { name: 'Sandwiches & Wraps', aliases: ['sandwich', 'sandwiches', 'sub', 'wrap', 'wraps', 'panini', 'burger', 'cheeseburger', 'hot dog', 'hotdog'], category: 'Prepared_Meals', baseShelfHours: 12, expiryOption: '12', tags: ['Nut-Free'] },
-  { name: 'Pizza', aliases: ['pizza', 'pizzas', 'flatbread'], category: 'Prepared_Meals', baseShelfHours: 12, expiryOption: '12', tags: ['Nut-Free'] },
-  { name: 'Dry Pantry Staples & Grains', aliases: ['sack', 'sacks', 'basmati', 'raw rice', 'uncooked rice', 'canned', 'can', 'cans', 'lentils', 'beans', 'chickpeas', 'flour', 'oats', 'cereal', 'grains', 'dry goods', 'dry', 'non-perishable', 'crackers', 'packaged', 'pasta box'], category: 'Dry_Goods', baseShelfHours: 48, expiryOption: '48', tags: ['Vegan', 'Dairy-Free', 'Nut-Free'] },
-  { name: 'Prepared Meals & Cooked Dishes', aliases: ['cooked rice', 'fried rice', 'biryani', 'curry', 'dal', 'stew', 'soup', 'consomme', 'hot pot', 'noodles', 'pasta', 'carbonara', 'spaghetti', 'burrito', 'taco', 'tacos', 'mashed potato', 'meat loaf', 'potpie', 'paneer', 'chicken', 'meal', 'meals', 'catering', 'buffet', 'tray', 'trays', 'bowl', 'plate', 'guacamole', 'rice'], category: 'Prepared_Meals', baseShelfHours: 12, expiryOption: '12', tags: ['Nut-Free'] },
   { name: 'Dairy, Milk & Yogurt', aliases: ['milk', 'cheese', 'yogurt', 'curd', 'butter', 'cream', 'ice cream', 'dairy', 'paneer pack', 'eggnog'], category: 'Dairy', baseShelfHours: 12, expiryOption: '12', tags: ['Gluten-Free', 'Nut-Free'] },
   { name: 'Refrigerated & Chilled Food', aliases: ['refrigerated', 'chilled', 'cold pack', 'deli', 'tofu', 'hummus'], category: 'Refrigerated', baseShelfHours: 24, expiryOption: '24', tags: ['Nut-Free'] },
-  { name: 'Bottled Beverages & Drinks', aliases: ['bottle', 'bottles', 'water bottle', 'pop bottle', 'juice', 'water', 'drink', 'drinks', 'beverage', 'beverages', 'smoothie', 'tea', 'coffee', 'espresso', 'cup'], category: 'Beverages', baseShelfHours: 24, expiryOption: '24', tags: ['Vegan', 'Gluten-Free', 'Dairy-Free', 'Nut-Free'] }
+  { name: 'Bottled Beverages & Drinks', aliases: ['bottle', 'bottles', 'water bottle', 'pop bottle', 'juice', 'water', 'drink', 'drinks', 'beverage', 'beverages', 'smoothie', 'tea', 'coffee', 'espresso', 'cup'], category: 'Beverages', baseShelfHours: 24, expiryOption: '24', tags: ['Vegan', 'Gluten-Free', 'Dairy-Free', 'Nut-Free'] },
+  { name: 'Prepared Meal Trays', aliases: ['tray', 'trays', 'bowl', 'plate'], category: 'Prepared_Meals', baseShelfHours: 12, expiryOption: '12', tags: ['Nut-Free'] }
 ];
 
 // Lazy-loaded singleton pipelines for the pre-trained Food-101, Google ViT, and YOLOS models
@@ -444,9 +445,7 @@ const analyzeFoodDonation = async ({
   notes = '',
   fileName = '',
   imageDataUrl = null,
-  visualProfile = null,
-  cnnDetections = [],
-  mobilenetPredictions = []
+  visualProfile = null
 }) => {
   const cleanNotes = String(notes || '').trim();
   const cleanFile = String(fileName || '').replace(/\.[^/.]+$/, '').replace(/[-_]+/g, ' ').trim();
@@ -477,33 +476,7 @@ const analyzeFoodDonation = async ({
     }
   }
 
-  // STEP 2: Check client-side CNN / MobileNet predictions if provided
-  if (!detectedName && Array.isArray(cnnDetections) && cnnDetections.length > 0) {
-    for (const det of cnnDetections) {
-      const m = matchCatalogItem(det.class);
-      if (m) {
-        detectedName = m.name;
-        finalCategory = m.category;
-        expiryOption = m.expiryOption;
-        baseTags = m.tags;
-        break;
-      }
-    }
-  }
-  if (!detectedName && Array.isArray(mobilenetPredictions) && mobilenetPredictions.length > 0) {
-    for (const pred of mobilenetPredictions) {
-      const m = matchCatalogItem(pred.className);
-      if (m) {
-        detectedName = m.name;
-        finalCategory = m.category;
-        expiryOption = m.expiryOption;
-        baseTags = m.tags;
-        break;
-      }
-    }
-  }
-
-  // STEP 3: Check text notes or descriptive filename (overrides or refines image when user explicitly types a food name)
+  // STEP 2: Check text notes or descriptive filename (overrides or refines image when user explicitly types a food name)
   const textMatch = matchCatalogItem(cleanNotes) || matchCatalogItem(cleanFile);
   if (textMatch) {
     detectedName = textMatch.name;
@@ -637,31 +610,6 @@ const analyzeFoodDonation = async ({
     'Beverages': 'Keep sealed and chilled until pickup (safe up to 24 hours).'
   };
 
-  const diagnostics = {
-    architecture: 'Food-101 Swin Vision Transformer + Google ViT + YOLOS Detector',
-    splitSizes: { train: 75750, validation: 12625, test: 12625 },
-    metrics: {
-      trainAccuracy: 0.942,
-      valAccuracy: 0.928,
-      testAccuracy: 0.924,
-      trainLoss: 0.184,
-      valLoss: 0.212,
-      testLoss: 0.219,
-      macroF1: 0.925,
-      generalizationGap: 0.014
-    },
-    trainAccuracy: 0.942,
-    valAccuracy: 0.928,
-    testAccuracy: 0.924,
-    trainLoss: 0.184,
-    valLoss: 0.212,
-    testLoss: 0.219,
-    generalizationGap: 0.014,
-    stoppedEpoch: 30,
-    l2Lambda: 0.01,
-    fitStatus: 'Optimal Fit (Neither Overfitting Nor Underfitting)'
-  };
-
   return {
     detected_food_item: detectedName,
     detected_item_count: detectedItemCount,
@@ -680,35 +628,8 @@ const analyzeFoodDonation = async ({
     },
     dietary_tags: Array.from(tags),
     safety_note: storageGuidelines[finalCategory] || 'Store safely until pickup.',
-    confidence_pct: confidencePct,
-    neural_network: {
-      architecture: diagnostics.architecture,
-      fit_status: diagnostics.fitStatus,
-      train_accuracy: diagnostics.trainAccuracy,
-      val_accuracy: diagnostics.valAccuracy,
-      test_accuracy: diagnostics.testAccuracy,
-      generalization_gap: diagnostics.generalizationGap,
-      stopped_epoch: diagnostics.stoppedEpoch,
-      l2_lambda: diagnostics.l2Lambda
-    },
-    mlp_diagnostics: diagnostics
+    confidence_pct: confidencePct
   };
 };
 
-const getFoodMLPDiagnostics = () => ({
-  architecture: 'Food-101 Swin Vision Transformer + Google ViT + YOLOS Detector',
-  splitSizes: { train: 75750, validation: 12625, test: 12625 },
-  metrics: {
-    trainAccuracy: 0.942,
-    valAccuracy: 0.928,
-    testAccuracy: 0.924,
-    trainLoss: 0.184,
-    valLoss: 0.212,
-    testLoss: 0.219,
-    macroF1: 0.925,
-    generalizationGap: 0.014
-  },
-  fitStatus: 'Optimal Fit (Neither Overfitting Nor Underfitting)'
-});
-
-module.exports = { analyzeFoodDonation, getFoodMLPDiagnostics };
+module.exports = { analyzeFoodDonation };

@@ -12,6 +12,14 @@ export default function ReceiverDashboard() {
   const [charityName, setCharityName] = useState(user?.name || '');
   const [charityAddress, setCharityAddress] = useState(user?.address || '');
 
+  // Sync user name/address when live profile loads
+  useEffect(() => {
+    if (user) {
+      setCharityName(prev => prev || user.name || '');
+      setCharityAddress(prev => prev || user.address || '');
+    }
+  }, [user]);
+
   // Geospatial & Smart Dispatch Filters
   const [searchInput, setSearchInput] = useState('');
   const [activeSearchCity, setActiveSearchCity] = useState('');
@@ -191,19 +199,31 @@ export default function ReceiverDashboard() {
     }
 
     let claimedCount = 0;
+    let lastError = '';
     for (const stop of optimizedRoute.stops) {
       const res = await fetch('/api/claims/request', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ batch_id: stop.batch_id, charity_name: charityName, charity_address: charityAddress })
       });
-      if (res.ok) claimedCount++;
+      if (res.status === 401) return logout();
+      if (res.ok) {
+        claimedCount++;
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        lastError = errData.error || 'Failed to request batch';
+      }
     }
 
-    setIsError(false);
-    setMsg(`Requested ${claimedCount} stops from your optimized pickup route!`);
-    setOptimizedRoute(null);
-    setSelectedBatchIds([]);
+    if (claimedCount > 0) {
+      setIsError(false);
+      setMsg(`Requested ${claimedCount} stop(s) from your optimized pickup route!`);
+      setOptimizedRoute(null);
+      setSelectedBatchIds([]);
+    } else {
+      setIsError(true);
+      setMsg(lastError || 'Could not claim stops in the route.');
+    }
     fetchNearby();
     fetchMyClaims();
   };
@@ -255,6 +275,15 @@ export default function ReceiverDashboard() {
               placeholder="City (e.g. New York)"
             />
             <button type="submit" className="btn-dark" style={{ padding: '8px 16px', width: 'auto' }}>Filter City</button>
+            {activeSearchCity && (
+              <button
+                type="button"
+                onClick={() => { setSearchInput(''); setActiveSearchCity(''); }}
+                style={{ padding: '8px 12px', borderRadius: '4px', border: '1px solid #888', backgroundColor: 'white', cursor: 'pointer', fontSize: '0.85rem' }}
+              >
+                Clear
+              </button>
+            )}
           </form>
 
           <button

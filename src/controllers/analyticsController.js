@@ -1,8 +1,6 @@
 const pool = require('../config/db');
 const { redisClient } = require('../config/redis');
 const { generateTimeSeriesForecast, classifySpatialHotspots } = require('../services/forecastService');
-const { trainAndEvaluateSpoilageModel, getSpoilageModelMetadata } = require('../services/spoilageModelService');
-const { getFoodMLPDiagnostics } = require('../services/foodAnalyzerService');
 
 /**
  * Advanced ML Demand Forecasting (Holt-Winters vs Seasonal Naive) & Geospatial Hotspot Analytics
@@ -68,11 +66,6 @@ const getForecastAndEfficiency = async (req, res) => {
 
       const timeSeries = generateTimeSeriesForecast(dailyRows, totalWeight, claimedWeight);
 
-      // 4. Calibrate and retrieve Spoilage Classification ML metrics & Food Vision MLP diagnostics
-      await trainAndEvaluateSpoilageModel();
-      const spoilageModel = getSpoilageModelMetadata();
-      const foodVisionModel = getFoodMLPDiagnostics();
-
       res.status(200).json({
         metrics: {
           totalWeightRescued: `${claimedWeight.toFixed(1)} kg`,
@@ -81,9 +74,7 @@ const getForecastAndEfficiency = async (req, res) => {
           currentAllocationEfficiency: `${currentEfficiency.toFixed(1)}%`,
         },
         forecast,
-        timeSeries,
-        spoilageModel,
-        foodVisionModel
+        timeSeries
       });
     } finally {
       connection.release();

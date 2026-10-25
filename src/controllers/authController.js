@@ -67,10 +67,12 @@ const register = async (req, res) => {
     ]);
 
     const user_id = result.insertId;
+    const savedAddress = address ? String(address).trim().slice(0, 255) : '';
+    const savedCity = base_city ? String(base_city).trim().slice(0, 100) : '';
 
     // Generate JWT (new users are unverified by default)
     const token = jwt.sign(
-      { user_id, email: normalizedEmail, role, name: trimmedName, is_verified: false },
+      { user_id, email: normalizedEmail, role, name: trimmedName, is_verified: false, address: savedAddress, base_city: savedCity },
       JWT_SECRET,
       { algorithm: 'HS256', expiresIn: '30d' }
     );
@@ -78,7 +80,7 @@ const register = async (req, res) => {
     res.status(201).json({
       message: 'Registration successful',
       token,
-      user: { user_id, email: normalizedEmail, role, name: trimmedName, is_verified: false }
+      user: { user_id, email: normalizedEmail, role, name: trimmedName, is_verified: false, address: savedAddress, base_city: savedCity }
     });
   } catch (error) {
     console.error('Register error:', error);
@@ -101,7 +103,7 @@ const login = async (req, res) => {
 
   try {
     // Fetch user by email
-    const [users] = await pool.execute('SELECT user_id, role, name, password_hash, email, is_verified FROM Users WHERE email = ?', [normalizedEmail]);
+    const [users] = await pool.execute('SELECT user_id, role, name, password_hash, email, is_verified, address, base_city FROM Users WHERE email = ?', [normalizedEmail]);
     
     if (users.length === 0) {
       return res.status(401).json({ error: 'Invalid email or password.' });
@@ -120,7 +122,15 @@ const login = async (req, res) => {
 
     // Issue JWT token
     const token = jwt.sign(
-      { user_id: user.user_id, email: user.email, role: user.role, name: user.name, is_verified: Boolean(user.is_verified) },
+      {
+        user_id: user.user_id,
+        email: user.email,
+        role: user.role,
+        name: user.name,
+        is_verified: Boolean(user.is_verified),
+        address: user.address || '',
+        base_city: user.base_city || ''
+      },
       JWT_SECRET,
       { algorithm: 'HS256', expiresIn: '30d' }
     );
@@ -133,7 +143,9 @@ const login = async (req, res) => {
         email: user.email,
         role: user.role,
         name: user.name,
-        is_verified: Boolean(user.is_verified)
+        is_verified: Boolean(user.is_verified),
+        address: user.address || '',
+        base_city: user.base_city || ''
       }
     });
   } catch (error) {
@@ -142,4 +154,31 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { register, login, JWT_SECRET };
+const getMe = async (req, res) => {
+  try {
+    const [users] = await pool.execute(
+      'SELECT user_id, role, name, email, is_verified, address, base_city FROM Users WHERE user_id = ?',
+      [req.user.user_id]
+    );
+    if (users.length === 0) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+    const u = users[0];
+    res.json({
+      user: {
+        user_id: u.user_id,
+        email: u.email,
+        role: u.role,
+        name: u.name,
+        is_verified: Boolean(u.is_verified),
+        address: u.address || '',
+        base_city: u.base_city || ''
+      }
+    });
+  } catch (error) {
+    console.error('GetMe error:', error);
+    res.status(500).json({ error: 'Server error fetching profile' });
+  }
+};
+
+module.exports = { register, login, getMe, JWT_SECRET };

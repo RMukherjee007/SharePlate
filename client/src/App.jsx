@@ -39,6 +39,7 @@ function App() {
           <Link to="/about" onMouseEnter={importAbout}>About</Link>
           <Link to="/donors" onMouseEnter={importDonors}>Donors</Link>
           <Link to="/charities" onMouseEnter={importCharities}>Charities</Link>
+          <Link to="/how-to-join" onMouseEnter={importHowToJoin}>How to Join</Link>
           <Link to="/analytics" onMouseEnter={importAnalytics}>Analytics</Link>
           <Link to="/contact" onMouseEnter={importContact}>Contact</Link>
           {user ? (
@@ -71,6 +72,15 @@ function App() {
             <Route path="/donor" element={<ProtectedRoute allowedRoles={['Restaurant']}><DonorDashboard /></ProtectedRoute>} />
             <Route path="/receiver" element={<ProtectedRoute allowedRoles={['NGO', 'Charity']}><ReceiverDashboard /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute allowedRoles={['Admin']}><AdminDashboard /></ProtectedRoute>} />
+
+            {/* 404 Catch-All Route */}
+            <Route path="*" element={
+              <div className="page-padding" style={{ textAlign: 'center', minHeight: '50vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <h1 className="header-title" style={{ marginBottom: '12px' }}>404 — Page Not Found</h1>
+                <p style={{ color: '#555', marginBottom: '24px' }}>The page you are looking for does not exist or has been moved.</p>
+                <Link to="/" className="btn-dark" style={{ textDecoration: 'none', width: 'auto', padding: '12px 28px' }}>Return to Home</Link>
+              </div>
+            } />
           </Routes>
         </Suspense>
       </ErrorBoundary>
@@ -88,6 +98,7 @@ function App() {
           <Link to="/about">About</Link>
           <Link to="/donors">Donors</Link>
           <Link to="/charities">Charities</Link>
+          <Link to="/how-to-join">How to Join</Link>
           <Link to="/analytics">Analytics</Link>
           <Link to="/contact">Contact</Link>
         </div>

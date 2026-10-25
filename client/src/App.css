@@ -148,31 +148,6 @@
   border-left-color: #dc2626;
 }
 
-/* Services Section */
-.services-section {
-  padding: 140px 40px 80px;
-  background-color: var(--color-white);
-}
-
-.services-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 60px;
-}
-
-.services-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 40px;
-}
-
-.service-card {
-  height: 600px;
-  background-size: cover;
-  background-position: center;
-}
-
 /* Features Section */
 .features-section {
   background-color: var(--color-white);
@@ -274,12 +249,6 @@
   margin-top: 20px;
 }
 
-.review-image {
-  flex: 1;
-  background-size: cover;
-  background-position: center;
-}
-
 .leave-review-container {
   background-color: var(--color-light-tan);
   padding: 40px;
@@ -349,19 +318,6 @@
   margin-top: 10px;
 }
 
-.social-icons span {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background-color: var(--color-text-light);
-  color: var(--color-dark-brown);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8rem;
-  font-weight: bold;
-}
-
 .footer-bottom {
   background-color: var(--color-dark-brown);
   color: var(--color-text-light);
@@ -427,8 +383,6 @@
   .nav-links { display: flex; flex-direction: row; flex-wrap: wrap; gap: 15px; align-items: center; width: 100%; }
   
   /* Dashboards and layout */
-  .dashboard-container { flex-direction: column; }
-  .services-section { padding: 60px 20px; }
   .features-header { font-size: 2rem; margin-bottom: 30px; }
   
   .hero-section { height: auto; min-height: 100vh; display: flex; flex-direction: column; }
