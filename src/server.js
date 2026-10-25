@@ -15,6 +15,7 @@ const analyticsRoutes = require('./routes/analyticsRoutes');
 const { router: streamRoutes, broadcast } = require('./routes/streamRoutes');
 const { redisSubscriber, redisConnectionPromise } = require('./config/redis');
 const { startExpiryDetection } = require('./services/expiryService');
+const { ensureGeoSchema } = require('./services/geoService');
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -28,7 +29,7 @@ app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+  res.setHeader('Permissions-Policy', 'geolocation=(self), microphone=(), camera=()');
   next();
 });
 
@@ -36,7 +37,7 @@ app.use((req, res, next) => {
 app.use(cors({
   origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : true
 }));
-app.use(express.json({ limit: '16kb' }));
+app.use(express.json({ limit: '5mb' }));
 
 // Apply rate limiting to API routes (1000 req / 15 min)
 app.use('/api', globalLimiter);
@@ -94,7 +95,8 @@ app.listen(PORT, async () => {
    Redis: Client Initialized
   `);
 
-  // Start Background Services
+  // Start Background Services & Schema Checks
+  await ensureGeoSchema();
   startExpiryDetection();
 
   try {

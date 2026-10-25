@@ -4,9 +4,9 @@ const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
 if (!process.env.JWT_SECRET) {
-  console.warn('⚠️ SECURITY WARNING: JWT_SECRET environment variable is not set! Using an ephemeral random secret for this process.');
+  console.warn('SECURITY WARNING: JWT_SECRET environment variable is not set! Using deterministic local dev secret.');
 }
-const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(64).toString('hex');
+const JWT_SECRET = process.env.JWT_SECRET || crypto.createHash('sha256').update(`shareplate-jwt-secret-${__dirname}`).digest('hex');
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

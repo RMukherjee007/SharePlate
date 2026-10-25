@@ -27,6 +27,9 @@ CREATE TABLE Food_Batches (
   delivery_city VARCHAR(100),
   donor_name VARCHAR(255),
   pickup_address VARCHAR(255),
+  latitude DECIMAL(10, 6),
+  longitude DECIMAL(10, 6),
+  dietary_tags VARCHAR(255),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (donor_id) REFERENCES Users(user_id)
 );

@@ -1,10 +1,11 @@
 const pool = require('../config/db');
 const { redisClient } = require('../config/redis');
+const { generateTimeSeriesForecast, classifySpatialHotspots } = require('../services/forecastService');
+const { trainAndEvaluateSpoilageModel, getSpoilageModelMetadata } = require('../services/spoilageModelService');
+const { getFoodMLPDiagnostics } = require('../services/foodAnalyzerService');
 
 /**
- * Basic Demand Forecasting Algorithm
- * Analyzes historical food batches and claims to predict future demand.
- * Calculates resource allocation efficiency.
+ * Advanced ML Demand Forecasting (Holt-Winters vs Seasonal Naive) & Geospatial Hotspot Analytics
  */
 const getForecastAndEfficiency = async (req, res) => {
   try {
@@ -33,38 +34,44 @@ const getForecastAndEfficiency = async (req, res) => {
       // 1 kg of food waste prevented = 2.5 kg of CO2e prevented
       const co2Prevented = (claimedWeight * 2.5).toFixed(1);
 
-      // 2. Simple Demand Forecasting based on City Grouping
+      // 2. Regional Supply, Demand & Spoilage Grouping with Geospatial Classification
       const query = `
         SELECT 
           delivery_city as city, 
           SUM(weight_kg) as total_supply, 
-          SUM(CASE WHEN status = 'claimed' THEN weight_kg ELSE 0 END) as total_demand 
+          SUM(CASE WHEN status = 'claimed' THEN weight_kg ELSE 0 END) as total_demand,
+          SUM(CASE WHEN status = 'expired' THEN weight_kg ELSE 0 END) as expired_weight
         FROM Food_Batches 
         GROUP BY delivery_city
       `;
       const [cityStats] = await connection.execute(query);
+      const forecast = classifySpatialHotspots(cityStats);
 
-      const forecast = cityStats.map(stat => {
-        const supply = parseFloat(stat.total_supply) || 0;
-        const demand = parseFloat(stat.total_demand) || 0;
-        const demandRatio = supply > 0 ? demand / supply : 0;
-        let recommendation = '';
-        if (demandRatio > 0.8) {
-          recommendation = 'High Demand: Increase donor outreach in this area.';
-        } else if (demandRatio < 0.4) {
-          recommendation = 'Surplus Risk: Partner with more charities here to improve allocation.';
-        } else {
-          recommendation = 'Balanced: Supply and demand are relatively stable.';
-        }
+      // 3. Daily Time-Series Aggregation for Holt-Winters Forecasting
+      let dailyRows = [];
+      try {
+        const [dRows] = await connection.execute(`
+          SELECT 
+            DATE_FORMAT(created_at, '%Y-%m-%d') as day_str,
+            SUM(weight_kg) as supply_kg,
+            SUM(CASE WHEN status = 'claimed' THEN weight_kg ELSE 0 END) as demand_kg
+          FROM Food_Batches
+          WHERE created_at IS NOT NULL
+          GROUP BY DATE_FORMAT(created_at, '%Y-%m-%d')
+          ORDER BY day_str ASC
+          LIMIT 60
+        `);
+        dailyRows = dRows;
+      } catch (_err) {
+        dailyRows = [];
+      }
 
-        return {
-          city: stat.city || 'Unknown',
-          supply: supply,
-          demand: demand,
-          demandRatio: demandRatio.toFixed(2),
-          recommendation
-        };
-      });
+      const timeSeries = generateTimeSeriesForecast(dailyRows, totalWeight, claimedWeight);
+
+      // 4. Calibrate and retrieve Spoilage Classification ML metrics & Food Vision MLP diagnostics
+      await trainAndEvaluateSpoilageModel();
+      const spoilageModel = getSpoilageModelMetadata();
+      const foodVisionModel = getFoodMLPDiagnostics();
 
       res.status(200).json({
         metrics: {
@@ -73,7 +80,10 @@ const getForecastAndEfficiency = async (req, res) => {
           equivalentMeals: equivalentMeals,
           currentAllocationEfficiency: `${currentEfficiency.toFixed(1)}%`,
         },
-        forecast
+        forecast,
+        timeSeries,
+        spoilageModel,
+        foodVisionModel
       });
     } finally {
       connection.release();
